@@ -1258,47 +1258,47 @@
 /* ---------- tipografia SF Pro ----------
    A SF Display pede peso mais alto e tracking negativo nos tamanhos grandes;
    o destaque em terracota passa a ser só cor (sem itálico), no estilo Apple. */
-.s-titulo {
+.site .s-titulo {
   font-weight: 600;
   letter-spacing: -0.035em;
   line-height: 1.04;
 }
-.s-titulo-2 {
+.site .s-titulo-2 {
   font-weight: 600;
   letter-spacing: -0.03em;
   line-height: 1.08;
 }
-.s-titulo-3,
-.s-trat__nome,
-.s-dor h3,
-.s-passo h3 {
+.site .s-titulo-3,
+.site .s-trat__nome,
+.site .s-dor h3,
+.site .s-passo h3 {
   font-weight: 600;
   letter-spacing: -0.02em;
 }
-.s-topo__nome {
+.site .s-topo__nome {
   font-weight: 600;
   letter-spacing: -0.02em;
   font-size: 1.125rem;
 }
-.s-faq__pergunta {
+.site .s-faq__pergunta {
   font-weight: 500;
   letter-spacing: -0.015em;
   font-size: 1.1875rem;
 }
-.s-dor__numero {
+.site .s-dor__numero {
   font-weight: 500;
   letter-spacing: -0.02em;
 }
-.s-carta__texto,
-.s-sobre__citacao,
-.s-hero__legenda {
+.site .s-carta__texto,
+.site .s-sobre__citacao,
+.site .s-hero__legenda {
   font-weight: 500;
   letter-spacing: -0.015em;
 }
-.s-hero__legenda {
+.site .s-hero__legenda {
   font-size: 1rem;
 }
-.s-carta__aspas {
+.site .s-carta__aspas {
   font-weight: 600;
 }
 .site {
