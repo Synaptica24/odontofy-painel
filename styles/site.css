@@ -1304,3 +1304,10 @@
 .site {
   letter-spacing: -0.006em;
 }
+
+/* nome do tratamento não encosta no número do canto */
+.site .s-trat__nome {
+  padding-right: 2.25rem;
+  font-size: 1.375rem;
+  line-height: 1.15;
+}
