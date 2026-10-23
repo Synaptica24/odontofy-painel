@@ -1,0 +1,954 @@
+/* Mundo "Clínica clara": o visual do Codental, que o Dr. Mateus já usa todo dia.
+   Inter, azul de ação (#1570EF), cinzas suaves, cartões brancos com borda de 1px e sombra curta.
+   Estado é dito por um ponto colorido pequeno: azul é a IA, cinza-escuro é você, vermelho precisa de você,
+   verde está confirmado, amarelo espera confirmação.
+   O prefixo de classe "a-" fica por herança. */
+
+/* a fonte vive na raiz para o body (e o sonner) já nascerem em Inter */
+:root {
+  --fonte-ui: var(--fonte-inter), Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+
+[data-mundo="a"] {
+  font-family: var(--fonte-ui);
+  --raio: 12px; /* cartões, formulários, balões */
+  --raio-campo: 8px; /* campos, botões, abas, chips */
+  --raio-pilula: 999px;
+
+  --fundo: #ffffff; /* cartão, barra, campo */
+  --fundo-app: #f9fafb; /* página */
+  --fundo-2: #f2f4f7; /* hover, trilho, pílula de data */
+  --hoje-fundo: #f5faff; /* coluna de hoje na semana */
+  --tinta: #101828;
+  --tinta-2: #475467;
+  --tinta-3: #667085;
+  --pauta: #eaecf0; /* divisores e borda de cartão */
+  --pauta-2: #d0d5dd; /* borda de campo e de botão */
+  --marcador: #1570ef; /* ação primária */
+  --marcador-2: #175cd3; /* hover da ação primária */
+  --ia: #175cd3;
+  --ia-vivo: #1570ef;
+  --ia-fundo: #eff8ff;
+  --ia-borda: #b2ddff;
+  --alerta: #d92d20;
+  --alerta-vivo: #f04438;
+  --alerta-fundo: #fef3f2;
+  --alerta-borda: #fecdca;
+  --sucesso: #067647;
+  --sucesso-vivo: #17b26a;
+  --sucesso-fundo: #ecfdf3;
+  --sucesso-borda: #abefc6;
+  --aviso: #b54708;
+  --aviso-vivo: #f79009;
+  --aviso-fundo: #fffaeb;
+  --aviso-borda: #fedf89;
+  --selecao: #d1e9ff;
+  --foco: #1570ef;
+  --anel-foco: 0 0 0 4px rgba(21, 112, 239, 0.16);
+  --sombra-xs: 0 1px 2px rgba(16, 24, 40, 0.05);
+  --sombra-sm: 0 1px 3px rgba(16, 24, 40, 0.1), 0 1px 2px rgba(16, 24, 40, 0.06);
+  --sombra-md: 0 4px 8px -2px rgba(16, 24, 40, 0.1), 0 2px 4px -2px rgba(16, 24, 40, 0.06);
+  --sombra-lg: 0 12px 16px -4px rgba(16, 24, 40, 0.1), 0 4px 6px -2px rgba(16, 24, 40, 0.05);
+  --barra: #ffffff;
+}
+
+:root[data-theme="dark"] [data-mundo="a"] {
+  --fundo: #161b26;
+  --fundo-app: #0c111d;
+  --fundo-2: #1f242f;
+  --hoje-fundo: #0f1f3d;
+  --tinta: #f5f5f6;
+  --tinta-2: #cecfd2;
+  --tinta-3: #94969c;
+  --pauta: #1f242f;
+  --pauta-2: #333741;
+  --marcador: #1570ef;
+  --marcador-2: #2e90fa;
+  --ia: #84caff;
+  --ia-vivo: #2e90fa;
+  --ia-fundo: #102a56;
+  --ia-borda: #1849a9;
+  --alerta: #f97066;
+  --alerta-vivo: #f04438;
+  --alerta-fundo: #55160c;
+  --alerta-borda: #7a271a;
+  --sucesso: #47cd89;
+  --sucesso-vivo: #17b26a;
+  --sucesso-fundo: #053321;
+  --sucesso-borda: #085d3a;
+  --aviso: #fdb022;
+  --aviso-vivo: #f79009;
+  --aviso-fundo: #4e1d09;
+  --aviso-borda: #7a2e0e;
+  --selecao: #1849a9;
+  --foco: #2e90fa;
+  --anel-foco: 0 0 0 4px rgba(46, 144, 250, 0.24);
+  --sombra-xs: 0 1px 2px rgba(0, 0, 0, 0.3);
+  --sombra-sm: 0 1px 3px rgba(0, 0, 0, 0.4), 0 1px 2px rgba(0, 0, 0, 0.3);
+  --sombra-md: 0 4px 8px -2px rgba(0, 0, 0, 0.5), 0 2px 4px -2px rgba(0, 0, 0, 0.4);
+  --sombra-lg: 0 12px 16px -4px rgba(0, 0, 0, 0.6), 0 4px 6px -2px rgba(0, 0, 0, 0.4);
+  --barra: #0c111d;
+}
+
+/* ── títulos: pesos moderados, sem enfeite ── */
+[data-mundo="a"] h1 {
+  font-size: var(--t-4);
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  line-height: 1.2;
+  color: var(--tinta);
+}
+
+/* ── blocos: cartões brancos, como as caixas laterais do Codental ── */
+.a-bloco {
+  position: relative;
+  margin-top: var(--e-4);
+  padding: var(--e-4);
+  background: var(--fundo);
+  border: 1px solid var(--pauta);
+  border-radius: var(--raio);
+  box-shadow: var(--sombra-xs);
+}
+.a-bloco--primeiro {
+  margin-top: var(--e-4);
+}
+.a-pagina--com-fixo {
+  padding-bottom: calc(var(--barra-inferior) + 5rem) !important;
+}
+.a-legenda {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--e-3);
+  padding-bottom: var(--e-3);
+  margin-bottom: var(--e-2);
+  border-bottom: 1px solid var(--pauta);
+  font-size: var(--t-0);
+  font-weight: 600;
+  color: var(--tinta);
+}
+.a-legenda .num {
+  font-weight: 500;
+  font-size: var(--t--1);
+  color: var(--tinta-3);
+}
+
+/* ── linhas de lista ── */
+.a-lista {
+  display: grid;
+}
+.a-lista > li + li {
+  border-top: 1px solid var(--pauta);
+}
+.a-linha {
+  display: grid;
+  grid-template-columns: 0.75rem 1fr auto;
+  align-items: center;
+  column-gap: var(--e-3);
+  min-height: var(--toque);
+  padding: var(--e-3) var(--e-2);
+  margin: 0 calc(-1 * var(--e-2));
+  border-radius: var(--raio-campo);
+  text-align: left;
+  width: calc(100% + 2 * var(--e-2));
+  color: var(--tinta);
+}
+@media (max-width: 1023px) {
+  .a-linha--acoes {
+    grid-template-columns: 0.75rem 1fr;
+  }
+  .a-linha--acoes > :last-child {
+    grid-column: 2;
+    justify-self: end;
+    margin-top: var(--e-2);
+  }
+}
+.a-linha__nome {
+  font-weight: 500;
+  line-height: 1.35;
+}
+.a-linha__sub {
+  font-size: var(--t--1);
+  color: var(--tinta-2);
+  line-height: 1.4;
+  margin-top: 1px;
+}
+.a-linha__meta {
+  font-size: var(--t--1);
+  color: var(--tinta-3);
+  white-space: nowrap;
+}
+.a-linha > div > .a-linha__meta {
+  white-space: normal;
+}
+.a-linha--alerta .a-linha__sub {
+  color: var(--alerta);
+  font-weight: 500;
+}
+@media (hover: hover) and (pointer: fine) {
+  .a-linha--toque:hover {
+    background-color: var(--fundo-2);
+  }
+}
+
+/* ── marcas de estado: ponto pequeno e chapado, como "● Confirmada" no Codental ── */
+.marca {
+  width: 0.5rem;
+  height: 0.5rem;
+  display: block;
+  justify-self: center;
+  border-radius: 50%;
+  flex: none;
+  background: transparent;
+}
+svg.marca {
+  overflow: visible;
+}
+.marca--escalada {
+  background: var(--alerta-vivo);
+}
+.marca--ia {
+  background: var(--ia-vivo);
+}
+.marca--voce {
+  background: var(--tinta-2);
+}
+.marca--anel {
+  border: 1.5px dashed var(--tinta-3);
+}
+.marca--vaga {
+  border: 1.5px dashed var(--pauta-2);
+}
+.marca--feito,
+.marca--falta {
+  width: 0.75rem;
+  height: 0.75rem;
+}
+.marca--feito {
+  background: var(--sucesso-vivo);
+  color: #ffffff;
+}
+.marca--falta {
+  color: var(--alerta);
+  border: 1.5px solid currentColor;
+}
+.marca--nada {
+  background: transparent;
+}
+
+/* ── botões: retos de 8px, 1px de borda, como "Entrar" e "Testar grátis" ── */
+.a-botao {
+  min-height: 2.5rem;
+  padding: 0 0.875rem;
+  gap: 0.5rem;
+  border-radius: var(--raio-campo);
+  border: 1px solid var(--pauta-2);
+  color: var(--tinta);
+  font-size: var(--t-0);
+  font-weight: 600;
+  white-space: nowrap;
+  background: var(--fundo);
+  box-shadow: var(--sombra-xs);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+.a-botao--cheio {
+  background: var(--marcador);
+  border-color: var(--marcador);
+  color: #ffffff;
+}
+.a-botao--alerta {
+  border-color: var(--alerta-borda);
+  color: var(--alerta);
+}
+.a-botao--grande {
+  min-height: 2.75rem;
+  font-size: var(--t-1);
+  padding: 0 1.25rem;
+}
+.a-botao:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+@media (hover: hover) and (pointer: fine) {
+  .a-botao.pressa:hover {
+    background-color: var(--fundo-2);
+  }
+  .a-botao--cheio.pressa:hover {
+    background-color: var(--marcador-2);
+    border-color: var(--marcador-2);
+  }
+  .a-botao--alerta.pressa:hover {
+    background-color: var(--alerta-fundo);
+  }
+}
+.a-link {
+  color: var(--ia);
+  font-weight: 600;
+  font-size: var(--t--1);
+  min-height: 2rem;
+}
+.a-link:hover {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+/* ── vazio como boa notícia ── */
+.a-vazio {
+  display: flex;
+  align-items: center;
+  gap: var(--e-3);
+  min-height: var(--toque);
+  padding: var(--e-3) var(--e-4);
+  border-radius: var(--raio-campo);
+  border: 1px dashed var(--pauta-2);
+  background: var(--fundo-app);
+  color: var(--tinta-2);
+}
+.a-vazio strong {
+  color: var(--tinta);
+  font-weight: 600;
+}
+.a-vazio svg {
+  color: var(--sucesso);
+  flex: none;
+}
+
+.a-erro {
+  margin-top: var(--e-4);
+  padding: var(--e-3) var(--e-4);
+  border-radius: var(--raio-campo);
+  border: 1px solid var(--alerta-borda);
+  background: var(--alerta-fundo);
+  color: var(--alerta);
+  font-weight: 500;
+}
+
+.a-contagem {
+  display: grid;
+  gap: var(--e-2);
+  font-size: var(--t-0);
+  color: var(--tinta-2);
+}
+.a-contagem b {
+  color: var(--tinta);
+  font-weight: 600;
+  font-size: var(--t-1);
+}
+.a-contagem--destaque {
+  display: flex;
+  align-items: baseline;
+  gap: var(--e-2);
+  flex-wrap: wrap;
+}
+.a-contagem--destaque b {
+  font-size: var(--t-5);
+  line-height: 1;
+  color: var(--ia);
+}
+
+/* ── campos ── */
+.a-campo {
+  display: grid;
+  gap: 6px;
+  margin-top: var(--e-3);
+}
+.a-campo__rotulo {
+  font-size: var(--t-0);
+  font-weight: 500;
+  color: var(--tinta-2);
+}
+.a-campo__dica {
+  font-size: var(--t--1);
+  color: var(--tinta-3);
+}
+.a-campo__linha {
+  display: flex;
+  align-items: center;
+  gap: var(--e-2);
+  flex-wrap: wrap;
+  font-size: var(--t-0);
+  color: var(--tinta-2);
+}
+.a-entrada {
+  width: 100%;
+  min-height: 2.5rem;
+  padding: 0.5rem 0.75rem;
+  border-radius: var(--raio-campo);
+  border: 1px solid var(--pauta-2);
+  background: var(--fundo);
+  color: var(--tinta);
+  font-weight: 400;
+  box-shadow: var(--sombra-xs);
+  transition:
+    border-color var(--rapido) ease,
+    box-shadow var(--rapido) ease;
+}
+.a-entrada:focus {
+  border-color: var(--ia-vivo);
+  box-shadow: var(--anel-foco);
+  outline: none;
+}
+.a-entrada::placeholder {
+  color: var(--tinta-3);
+}
+.a-entrada--area {
+  min-height: 5rem;
+  resize: vertical;
+  line-height: 1.45;
+}
+.a-campo__linha .a-entrada {
+  width: auto;
+}
+.a-campo__linha .a-entrada[type="number"] {
+  width: 6rem;
+}
+select.a-entrada {
+  appearance: none;
+  background-image: linear-gradient(45deg, transparent 50%, currentColor 50%), linear-gradient(135deg, currentColor 50%, transparent 50%);
+  background-position: calc(100% - 16px) 55%, calc(100% - 11px) 55%;
+  background-size: 5px 5px;
+  background-repeat: no-repeat;
+  padding-right: 2.25rem;
+}
+
+/* ── interruptor ── */
+.a-interruptor {
+  position: relative;
+  width: 2.75rem;
+  height: 1.5rem;
+  border-radius: var(--raio-pilula);
+  background: var(--pauta);
+  border: 0;
+  transition: background-color var(--normal) ease;
+  flex: none;
+}
+.a-interruptor--ligado {
+  background: var(--marcador);
+}
+.a-interruptor__bola {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 1.25rem;
+  height: 1.25rem;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: var(--sombra-sm);
+  transition: transform var(--normal) var(--saida);
+}
+.a-interruptor--ligado .a-interruptor__bola {
+  transform: translateX(1.25rem);
+}
+
+/* ── abas: a selecionada fica azul-claro, como "Agenda" na barra do Codental ── */
+.a-abas {
+  display: inline-flex;
+  gap: 4px;
+  max-width: 100%;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.a-aba {
+  min-height: 2.25rem;
+  padding: 0 0.75rem;
+  border-radius: var(--raio-campo);
+  font-size: var(--t-0);
+  font-weight: 600;
+  color: var(--tinta-2);
+  white-space: nowrap;
+  transition:
+    background-color var(--normal) ease,
+    color var(--normal) ease;
+}
+.a-aba[aria-selected="true"] {
+  background: var(--ia-fundo);
+  color: var(--ia);
+}
+.a-passos {
+  display: inline-flex;
+  border: 1px solid var(--pauta-2);
+  border-radius: var(--raio-campo);
+  background: var(--fundo);
+  box-shadow: var(--sombra-xs);
+  overflow: hidden;
+}
+.a-passo {
+  min-width: 2.25rem;
+  min-height: 2.25rem;
+  padding: 0 0.75rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: var(--t-0);
+  font-weight: 600;
+  color: var(--tinta-2);
+}
+.a-passo + .a-passo {
+  border-left: 1px solid var(--pauta-2);
+}
+
+.a-form {
+  margin-top: var(--e-3);
+  padding: var(--e-3) var(--e-4) var(--e-4);
+  border-radius: var(--raio);
+  border: 1px solid var(--pauta);
+  background: var(--fundo);
+  box-shadow: var(--sombra-md);
+}
+
+/* ── semana no celular ── */
+.a-semana-dia {
+  margin-top: var(--e-3);
+}
+.a-semana-dia__titulo {
+  display: flex;
+  align-items: baseline;
+  gap: var(--e-2);
+  width: 100%;
+  min-height: var(--toque);
+  padding: var(--e-1) 0;
+  font-weight: 600;
+  color: var(--tinta-2);
+  text-align: left;
+}
+.a-semana-dia__titulo .num {
+  font-size: var(--t-2);
+  color: var(--tinta);
+}
+.a-semana-dia__titulo--hoje .num {
+  color: var(--ia);
+}
+.a-semana-dia__titulo .a-linha__meta {
+  margin-left: auto;
+}
+
+/* ── respostas da IA ── */
+.a-resposta {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: start;
+  gap: var(--e-3);
+  padding: var(--e-3) 0;
+}
+.a-resposta--off .a-resposta__corpo {
+  opacity: 0.55;
+}
+.a-resposta__corpo {
+  display: grid;
+  gap: 2px;
+  text-align: left;
+  border-radius: var(--raio-campo);
+  min-height: var(--toque);
+}
+.a-resposta__pergunta {
+  font-weight: 500;
+  line-height: 1.35;
+}
+.a-resposta__texto {
+  color: var(--tinta-2);
+  font-size: var(--t--1);
+  line-height: 1.45;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.a-resposta__chaves {
+  font-size: var(--t--1);
+  color: var(--ia);
+  font-weight: 500;
+  margin-top: 2px;
+}
+
+/* ── campanha ── */
+.a-campanha {
+  display: grid;
+  gap: var(--e-4);
+}
+.a-campanha__voltaram {
+  padding: var(--e-4) var(--e-5);
+  border-radius: var(--raio);
+  border: 1px solid var(--ia-borda);
+  background: var(--ia-fundo);
+  color: var(--tinta);
+}
+.a-campanha__n {
+  display: block;
+  font-size: var(--t-6);
+  font-weight: 600;
+  line-height: 1;
+  letter-spacing: -0.02em;
+  color: var(--ia);
+}
+.a-campanha__l {
+  display: block;
+  margin-top: var(--e-1);
+  font-weight: 500;
+  color: var(--tinta-2);
+}
+.a-campanha__contas {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(7.5rem, 1fr));
+  gap: var(--e-2);
+}
+.a-campanha__contas div {
+  padding: var(--e-2) var(--e-3);
+  border-radius: var(--raio-campo);
+  border: 1px solid var(--pauta);
+  background: var(--fundo);
+}
+.a-campanha__contas dt {
+  font-size: var(--t--2);
+  font-weight: 500;
+  color: var(--tinta-3);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.a-campanha__contas dd {
+  font-size: var(--t-2);
+  font-weight: 600;
+}
+.a-fixo-baixo {
+  position: fixed;
+  left: 50%;
+  transform: translateX(-50%);
+  bottom: calc(var(--barra-inferior) + 0.75rem);
+  width: min(calc(100% - 2rem), 28rem);
+  z-index: 15;
+}
+.a-fixo-baixo .a-botao {
+  box-shadow: var(--sombra-lg);
+}
+
+/* ── ajustes ── */
+.a-ajuste {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--e-3);
+  min-height: 3.25rem;
+  padding: var(--e-2) 0;
+}
+.a-ajuste + .a-ajuste {
+  border-top: 1px solid var(--pauta);
+}
+.a-ajuste--dia {
+  align-items: flex-start;
+  flex-wrap: wrap;
+}
+.a-ajuste__rotulo {
+  font-weight: 500;
+}
+.a-ajuste__dica {
+  font-size: var(--t--1);
+  color: var(--tinta-3);
+}
+
+/* ── consumo ── */
+.a-consumo {
+  display: grid;
+  gap: var(--e-2);
+}
+.a-consumo__n {
+  font-size: var(--t-6);
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  line-height: 1;
+}
+.a-consumo__l {
+  color: var(--tinta-2);
+  font-weight: 500;
+}
+.a-consumo__meta {
+  font-size: var(--t--1);
+  color: var(--tinta-3);
+}
+.a-barra {
+  height: 8px;
+  border-radius: var(--raio-pilula);
+  background: var(--fundo-2);
+  overflow: hidden;
+  margin-top: var(--e-2);
+}
+.a-barra__cheio {
+  display: block;
+  height: 100%;
+  width: 100%;
+  border-radius: var(--raio-pilula);
+  background: var(--ia-vivo);
+  transform-origin: left center;
+  transition: transform var(--lento) var(--saida);
+}
+.a-barra__cheio--alerta {
+  background: var(--alerta-vivo);
+}
+
+.a-voltar {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  min-height: 2.25rem;
+  padding: 0 0.625rem 0 0.25rem;
+  margin-left: -0.25rem;
+  border-radius: var(--raio-campo);
+  font-size: var(--t-0);
+  font-weight: 600;
+  color: var(--tinta-2);
+}
+
+/* ── thread da conversa ── */
+.a-thread {
+  display: flex;
+  flex-direction: column;
+  min-height: 100dvh;
+  background: var(--fundo-app);
+}
+.a-thread__topo {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  gap: var(--e-2);
+  padding: var(--e-2) var(--e-3);
+  background: var(--barra);
+  border-bottom: 1px solid var(--pauta);
+}
+.a-thread__voltar {
+  width: var(--toque);
+  height: var(--toque);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--raio-campo);
+  color: var(--tinta);
+  flex: none;
+}
+.a-thread__nome {
+  display: block;
+  font-weight: 600;
+  font-size: var(--t-1);
+  line-height: 1.2;
+}
+.a-thread__quem {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: var(--t--1);
+  font-weight: 500;
+  color: var(--tinta-2);
+  margin-top: 2px;
+}
+.a-thread__quem--alerta {
+  color: var(--alerta);
+}
+.a-thread__corpo {
+  flex: 1;
+  padding: var(--e-2) var(--e-4) var(--e-4);
+  display: flex;
+  flex-direction: column;
+  gap: var(--e-2);
+}
+.a-thread__dia {
+  display: flex;
+  flex-direction: column;
+  gap: var(--e-2);
+}
+.a-thread__data {
+  align-self: center;
+  margin: var(--e-3) 0 var(--e-1);
+  padding: 3px 10px;
+  border-radius: var(--raio-pilula);
+  border: 1px solid var(--pauta);
+  background: var(--fundo);
+  font-size: var(--t--2);
+  font-weight: 500;
+  color: var(--tinta-3);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.a-balao {
+  position: relative;
+  max-width: 82%;
+  padding: 0.5rem 0.75rem 1.125rem;
+  border-radius: var(--raio);
+  line-height: 1.45;
+}
+.a-balao--paciente {
+  align-self: flex-start;
+  background: var(--fundo);
+  border: 1px solid var(--pauta);
+  box-shadow: var(--sombra-xs);
+  border-bottom-left-radius: 4px;
+}
+.a-balao--ia {
+  align-self: flex-end;
+  background: var(--ia-fundo);
+  border: 1px solid var(--ia-borda);
+  color: var(--tinta);
+  border-bottom-right-radius: 4px;
+}
+.a-balao--voce {
+  align-self: flex-end;
+  background: var(--marcador);
+  color: #ffffff;
+  border-bottom-right-radius: 4px;
+}
+.a-balao__autor {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: var(--t--2);
+  font-weight: 600;
+  opacity: 0.8;
+  margin-bottom: 2px;
+}
+.a-balao--voce .marca--voce {
+  background: rgba(255, 255, 255, 0.85);
+}
+.a-balao__hora {
+  position: absolute;
+  right: 0.625rem;
+  bottom: 0.3rem;
+  font-size: 0.6875rem;
+  opacity: 0.65;
+}
+.a-balao__tipo {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: var(--t--1);
+  font-weight: 600;
+}
+.a-balao__transcricao {
+  margin-top: 4px;
+  font-size: var(--t--1);
+  opacity: 0.9;
+}
+.a-balao__imagem {
+  display: block;
+  max-width: 100%;
+  border-radius: var(--raio-campo);
+}
+.a-thread__rodape {
+  position: sticky;
+  bottom: var(--barra-inferior);
+  padding: var(--e-2) var(--e-3) var(--e-3);
+  background: var(--barra);
+  border-top: 1px solid var(--pauta);
+  z-index: 10;
+}
+.a-thread__form {
+  display: flex;
+  align-items: flex-end;
+  gap: var(--e-2);
+}
+.a-thread__texto {
+  flex: 1;
+  border-radius: var(--raio-campo);
+  min-height: 2.5rem;
+  max-height: 8rem;
+  resize: none;
+}
+.a-thread__enviar {
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: var(--raio-campo);
+  background: var(--marcador);
+  color: #ffffff;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+}
+.a-thread__enviar:disabled {
+  opacity: 0.4;
+}
+@media (hover: hover) and (pointer: fine) {
+  .a-thread__enviar.pressa:hover {
+    background-color: var(--marcador-2);
+  }
+}
+.a-thread__aviso {
+  text-align: center;
+  font-size: var(--t--1);
+  font-weight: 500;
+  color: var(--tinta-2);
+  padding: var(--e-1) 0;
+}
+.a-thread__link {
+  color: var(--ia);
+  font-weight: 600;
+}
+
+/* ── barra inferior do celular: faixa branca rente ao fundo, com a aba ativa em azul-claro ── */
+.a-nav {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: var(--barra-inferior);
+  padding: 0 4px env(safe-area-inset-bottom, 0px);
+  background: var(--barra);
+  border-top: 1px solid var(--pauta);
+  box-shadow: 0 -1px 2px rgba(16, 24, 40, 0.04);
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  z-index: 20;
+}
+.a-nav a {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  font-size: 0.6875rem;
+  font-weight: 500;
+  color: var(--tinta-3);
+  min-height: 3.5rem;
+  border-radius: var(--raio-campo);
+}
+.a-nav a[aria-current="page"] {
+  color: var(--ia);
+  font-weight: 600;
+}
+.a-nav a[aria-current="page"] > span:first-child {
+  background: var(--ia-fundo);
+  color: var(--ia);
+}
+.a-nav a > span:first-child {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 1.75rem;
+  border-radius: var(--raio-campo);
+  transition:
+    background-color var(--normal) ease,
+    color var(--normal) ease;
+}
+.ponto {
+  position: relative;
+}
+.ponto::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  right: 4px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--alerta-vivo);
+  box-shadow: 0 0 0 2px var(--barra);
+}
+
+@media (min-width: 900px) {
+  [data-mundo="a"] .a-pagina {
+    max-width: 44rem;
+  }
+  .a-balao {
+    max-width: 70%;
+  }
+}

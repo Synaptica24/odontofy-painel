@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600" width="800" height="600">
+  <defs>
+    <linearGradient id="fundo" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#d9d0bf"/>
+      <stop offset="1" stop-color="#bfb3a0"/>
+    </linearGradient>
+    <linearGradient id="labio" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#9c5c4a"/>
+      <stop offset="1" stop-color="#7a4234"/>
+    </linearGradient>
+  </defs>
+  <rect width="800" height="600" fill="url(#fundo)"/>
+  <!-- boca estilizada: dentes amarelados e desiguais -->
+  <path d="M120 300 C 220 180, 580 180, 680 300 C 580 420, 220 420, 120 300 Z" fill="url(#labio)"/>
+  <path d="M160 300 C 250 230, 550 230, 640 300 C 550 370, 250 370, 160 300 Z" fill="#2a1d1a"/>
+  <g fill="#e6d7a8" stroke="#b9a877" stroke-width="2">
+    <rect x="180" y="262" width="52" height="60" rx="10"/>
+    <rect x="238" y="252" width="56" height="74" rx="10"/>
+    <rect x="300" y="246" width="60" height="84" rx="10" fill="#dcc88f"/>
+    <rect x="366" y="246" width="60" height="80" rx="10"/>
+    <rect x="432" y="250" width="56" height="78" rx="10" fill="#d4bd80"/>
+    <rect x="494" y="256" width="54" height="70" rx="10"/>
+    <rect x="554" y="262" width="50" height="60" rx="10"/>
+  </g>
+  <!-- restauração escura -->
+  <ellipse cx="458" cy="300" rx="12" ry="9" fill="#5a4a3a"/>
+</svg>

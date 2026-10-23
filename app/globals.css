@@ -1,0 +1,22 @@
+@import "tailwindcss";
+@import "../styles/base.css";
+@import "../styles/mundo-a.css";
+@import "../styles/desktop.css";
+
+@theme inline {
+  --color-fundo: var(--fundo);
+  --color-fundo-app: var(--fundo-app);
+  --color-fundo-2: var(--fundo-2);
+  --color-tinta: var(--tinta);
+  --color-tinta-2: var(--tinta-2);
+  --color-tinta-3: var(--tinta-3);
+  --color-pauta: var(--pauta);
+  --color-pauta-2: var(--pauta-2);
+  --color-alerta: var(--alerta);
+  --color-alerta-fundo: var(--alerta-fundo);
+  --color-ia: var(--ia);
+  --color-ia-fundo: var(--ia-fundo);
+  --color-sucesso: var(--sucesso);
+  --color-aviso: var(--aviso);
+  --font-sans: var(--fonte-ui);
+}
