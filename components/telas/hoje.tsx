@@ -219,7 +219,7 @@ export function TelaHoje() {
                   return (
                     <Item key={a.id}>
                       <Linha
-                        marca={sugerido ? "anel" : faltou ? "falta" : a.origem === "agente" ? "ia" : "voce"}
+                        marca={sugerido ? "anel" : faltou ? "falta" : a.status === "concluido" ? "feito" : a.origem === "agente" ? "ia" : "voce"}
                         href={`/pacientes/${a.paciente_id}`}
                         className={passou && !sugerido ? "opacity-60" : ""}
                         titulo={
@@ -265,6 +265,23 @@ export function TelaHoje() {
                   );
                 })}
               </Lista>
+            )}
+          </Bloco>
+
+          <Bloco titulo="Dia em números" id="numeros">
+            {!d ? (
+              <OssoLinha n={1} />
+            ) : (
+              <div className="numeros">
+                <div className="numero"><b className="num">{reais(d.faturamento_previsto ?? 0)}</b><span>faturamento previsto hoje</span></div>
+                <div className="numero"><b className="num">{reais(d.faturamento_realizado ?? 0)}</b><span>já realizado (atendidos)</span></div>
+                <div className="numero">
+                  <b className="num">{d.comparecimento_30d && d.comparecimento_30d.total > 0 ? `${Math.round((d.comparecimento_30d.compareceram / d.comparecimento_30d.total) * 100)}%` : "—"}</b>
+                  <span>comparecimento em 30 dias{d.comparecimento_30d ? ` · ${d.comparecimento_30d.faltaram} ${d.comparecimento_30d.faltaram === 1 ? "falta" : "faltas"}` : ""}</span>
+                </div>
+                <Link href="/financeiro#confirmacoes" className="numero"><b className="num">{d.confirmacoes_pendentes ?? 0}</b><span>a confirmar nas próximas 48 h</span></Link>
+                <Link href="/financeiro#retornos" className="numero"><b className="num">{d.retornos_pendentes ?? 0}</b><span>retornos para chamar</span></Link>
+              </div>
             )}
           </Bloco>
 

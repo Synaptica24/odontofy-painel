@@ -1,0 +1,60 @@
+/* Tela de entrar: cartão branco centrado sobre a página cinza-claríssima. */
+.entrar {
+  min-height: 100dvh;
+  display: grid;
+  align-content: center;
+  justify-items: center;
+  gap: 1rem;
+  padding: 1.5rem 1rem;
+  background: var(--fundo-app);
+}
+.entrar__cartao {
+  width: 100%;
+  max-width: 26rem;
+  padding: 1.5rem;
+}
+.entrar__marca {
+  color: var(--marcador);
+  font-weight: 700;
+  font-size: 1rem;
+  letter-spacing: -0.01em;
+}
+.entrar__titulo {
+  margin-top: 0.75rem;
+  font-size: var(--t-4);
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+.entrar__sub {
+  margin-top: 0.25rem;
+  color: var(--tinta-2);
+  font-size: var(--t--1);
+}
+.entrar__form {
+  display: grid;
+  gap: 0.75rem;
+  margin-top: 1.25rem;
+}
+.entrar__alternativa {
+  margin-top: 1.25rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--pauta);
+  font-size: var(--t--1);
+  color: var(--tinta-2);
+}
+.entrar__alternativa summary {
+  cursor: pointer;
+  color: var(--ia);
+  font-weight: 500;
+}
+.entrar__rodape {
+  font-size: var(--t--1);
+  color: var(--tinta-3);
+}
+.entrar__rodape a:hover {
+  color: var(--tinta);
+}
+.entrar .a-erro,
+.entrar .a-vazio {
+  margin-top: 1rem;
+}

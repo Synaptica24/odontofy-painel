@@ -1,0 +1,285 @@
+/* Página pública de assinatura de contrato (paciente, celular) e tela de modelos de contrato. */
+
+/* ---------- página pública ---------- */
+.assinar--pagina {
+  --as-papel: #f4f1ea;
+  --as-grafite: #1f1e1b;
+  --as-grafite-2: #4a4844;
+  --as-grafite-3: #7a776f;
+  --as-linha: rgba(31, 30, 27, 0.14);
+  --as-destaque: #b5502a;
+  --as-ok: #1f7a4d;
+  min-height: 100dvh;
+  background: var(--as-papel);
+  color: var(--as-grafite);
+  font-family: var(--fonte-inter, var(--fonte-ui)), ui-sans-serif, system-ui, sans-serif;
+  font-size: 1rem;
+  line-height: 1.55;
+  padding: 1.25rem 1rem 3rem;
+  gap: 0.875rem;
+}
+.assinar__cabeca {
+  display: grid;
+  gap: 0.25rem;
+  padding: 0.25rem 0 0.5rem;
+}
+.assinar__rotulo {
+  font-size: 0.75rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--as-grafite-3);
+  font-weight: 500;
+}
+.assinar__titulo {
+  font-size: clamp(1.5rem, 5vw, 2rem);
+  line-height: 1.15;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  text-wrap: balance;
+}
+.assinar__sub {
+  font-size: 1.0625rem;
+  font-weight: 600;
+}
+.assinar__cartao {
+  background: #fff;
+  border: 1px solid var(--as-linha);
+  border-radius: 14px;
+  padding: 1.125rem;
+  display: grid;
+  gap: 0.75rem;
+}
+.assinar__cartao--ok {
+  border-color: rgba(31, 122, 77, 0.35);
+  background: #f1f8f3;
+}
+.assinar__linha {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+.assinar__link {
+  font-weight: 500;
+  color: var(--as-destaque);
+  border-bottom: 1px solid currentColor;
+  font-size: 0.9375rem;
+}
+.assinar__texto {
+  color: var(--as-grafite-2);
+}
+.assinar__mudo {
+  color: var(--as-grafite-3);
+  font-size: 0.875rem;
+}
+.assinar__conteudo {
+  max-height: 22rem;
+  background: var(--as-papel);
+  border-color: var(--as-linha);
+  color: var(--as-grafite-2);
+  font-size: 0.9375rem;
+}
+.assinar__form {
+  gap: 1rem;
+}
+.assinar__campo {
+  display: grid;
+  gap: 0.375rem;
+}
+.assinar__campo > span {
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+.assinar__campo input {
+  height: 3rem;
+  padding: 0 0.875rem;
+  border: 1px solid rgba(31, 30, 27, 0.28);
+  border-radius: 10px;
+  background: #fff;
+  font-size: 1rem;
+}
+.assinar__campo input:focus {
+  outline: none;
+  border-color: var(--as-grafite);
+  box-shadow: 0 0 0 4px rgba(31, 30, 27, 0.08);
+}
+.assinar__campo input[aria-invalid="true"] {
+  border-color: #c0392b;
+}
+.assinar__erro-campo {
+  color: #c0392b;
+  font-size: 0.8125rem;
+}
+.assinar__aceite {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.625rem;
+  font-size: 0.9375rem;
+  color: var(--as-grafite-2);
+}
+.assinar__aceite input {
+  width: 1.25rem;
+  height: 1.25rem;
+  margin-top: 0.1rem;
+  accent-color: var(--as-grafite);
+  flex: none;
+}
+.assinar__erro {
+  color: #c0392b;
+  background: #fbeceb;
+  border: 1px solid rgba(192, 57, 43, 0.3);
+  border-radius: 10px;
+  padding: 0.625rem 0.875rem;
+  font-size: 0.9375rem;
+}
+.assinar__botao {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 3.25rem;
+  padding: 0 1.5rem;
+  border-radius: 999px;
+  border: 0;
+  background: var(--as-grafite);
+  color: var(--as-papel);
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: transform 160ms cubic-bezier(0.23, 1, 0.32, 1), opacity 200ms ease;
+}
+.assinar__botao:active {
+  transform: scale(0.97);
+}
+.assinar__botao:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+.assinar__cartao--ok .assinar__botao {
+  background: var(--as-ok);
+}
+.assinar__rodape {
+  color: var(--as-grafite-3);
+  font-size: 0.8125rem;
+  line-height: 1.5;
+  padding: 0.5rem 0.25rem;
+}
+@media (min-width: 40rem) {
+  .assinar--pagina {
+    padding: 2.5rem 1.5rem 4rem;
+  }
+  .assinar__cartao {
+    padding: 1.5rem;
+  }
+}
+
+/* quadro de assinatura */
+.pad {
+  display: grid;
+  gap: 0.375rem;
+}
+.assinar__canvas {
+  cursor: crosshair;
+  border: 1px dashed rgba(31, 30, 27, 0.35);
+  border-radius: 10px;
+  background-image: linear-gradient(transparent 70%, rgba(31, 30, 27, 0.12) 70%, rgba(31, 30, 27, 0.12) calc(70% + 1px), transparent calc(70% + 1px));
+}
+.pad__rodape {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 0.8125rem;
+  color: var(--as-grafite-3, var(--tinta-3));
+}
+.pad__limpar {
+  background: none;
+  border: 0;
+  color: inherit;
+  font: inherit;
+  font-weight: 500;
+  text-decoration: underline;
+  cursor: pointer;
+}
+.pad__limpar:disabled {
+  opacity: 0.4;
+  cursor: default;
+  text-decoration: none;
+}
+
+/* ---------- modelos de contrato (painel) ---------- */
+.modelos__acoes {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+}
+.modelos__dica {
+  font-size: var(--t--1);
+  color: var(--tinta-2);
+  margin-bottom: 0.75rem;
+}
+.modelos__padroes {
+  display: grid;
+  gap: 0.5rem;
+}
+.modelos__padroes .a-botao {
+  justify-content: flex-start;
+  height: auto;
+  min-height: 2.75rem;
+  text-align: left;
+  white-space: normal;
+}
+.variaveis--clicaveis button {
+  background: none;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+}
+.variaveis--clicaveis button:hover code {
+  border-color: var(--marcador);
+  color: var(--ia);
+}
+.modelos__abas {
+  display: inline-flex;
+  gap: 0.25rem;
+  padding: 0.25rem;
+  border-radius: 8px;
+  background: var(--fundo-2);
+  width: max-content;
+}
+.modelos__abas button {
+  height: 2rem;
+  padding: 0 0.75rem;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--tinta-2);
+  font-size: var(--t--1);
+  font-weight: 500;
+  cursor: pointer;
+}
+.modelos__abas button[aria-selected="true"] {
+  background: var(--fundo);
+  color: var(--tinta);
+  box-shadow: 0 1px 2px rgba(16, 24, 40, 0.08);
+}
+.modelos__area {
+  min-height: 22rem;
+  font-size: var(--t--1);
+  line-height: 1.55;
+}
+.modelos__previa {
+  max-height: 28rem;
+  background: var(--fundo);
+}
+.modelos__ativo {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  font-size: var(--t--1);
+  color: var(--tinta-2);
+}
+@media (min-width: 64rem) {
+  .folha--larga {
+    width: 44rem;
+  }
+}

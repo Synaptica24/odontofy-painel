@@ -2,6 +2,10 @@
 @import "../styles/base.css";
 @import "../styles/mundo-a.css";
 @import "../styles/desktop.css";
+@import "../styles/entrar.css";
+@import "../styles/clinica.css";
+@import "../styles/ficha.css";
+@import "../styles/assinar.css";
 
 @theme inline {
   --color-fundo: var(--fundo);

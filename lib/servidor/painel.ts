@@ -110,7 +110,11 @@ export async function executarOperacao(operacao: string, entrada: unknown): Prom
         if (error || !data?.wa_message_id || data.wa_message_id !== ack.wa_message_id) throw new Error('Confirmação não persistida');
         dados = data; break;
       }
-      default: throw { code: '22023' };
+      default: {
+        // Operações clínicas (prontuário, agenda do painel, contratos, financeiro) vivem em clinica.ts.
+        const { executarClinica } = await import('./clinica');
+        return executarClinica(operacao, entrada);
+      }
     }
     return { sucesso: true, dados, erro: null };
   } catch (erro) { return erroSeguro(erro); }

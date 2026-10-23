@@ -6,6 +6,7 @@ import { lerConfig, salvarConfig } from "@/lib/api";
 import type { Config, DiaSemana, FaixaHorario } from "@/lib/contratos";
 import { useApi } from "@/components/dados/use-api";
 import { Bloco, Botao, Cabecalho, Campo, Entrada, Erro, Interruptor, Pagina } from "@/components/ui/primitivos";
+import { AjustesClinica } from "./ajustes-clinica";
 
 const DIAS: { chave: DiaSemana; rotulo: string }[] = [
   { chave: "segunda", rotulo: "Segunda" },
@@ -227,6 +228,7 @@ export function TelaAjustes() {
           </Bloco>
         </>
       )}
+      <AjustesClinica />
     </Pagina>
   );
 }

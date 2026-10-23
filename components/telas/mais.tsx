@@ -1,13 +1,15 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Coins, Megaphone, Settings, Users } from "lucide-react";
+import { Coins, FileSignature, Megaphone, Settings, Sparkles, Wallet } from "lucide-react";
 import { Abas, Bloco, Cabecalho, Item, Linha, Lista, Pagina } from "@/components/ui/primitivos";
 
 const ITENS = [
-  { href: "/pacientes", titulo: "Pacientes", sub: "Quem já falou com o consultório", Icone: Users },
+  { href: "/financeiro", titulo: "Financeiro", sub: "Faturamento, orçamentos, confirmações, faltas e retornos", Icone: Wallet },
+  { href: "/ia-responde", titulo: "IA responde", sub: "O que a IA sabe responder no WhatsApp", Icone: Sparkles },
   { href: "/campanha", titulo: "Campanha de retorno", sub: "Quem voltou a marcar, e o botão de pausar", Icone: Megaphone },
-  { href: "/ajustes", titulo: "Ajustes", sub: "Horários, tipos, teto de novos, urgência", Icone: Settings },
+  { href: "/ajustes/contratos", titulo: "Modelos de contrato", sub: "Termo de consentimento, contrato de tratamento", Icone: FileSignature },
+  { href: "/ajustes", titulo: "Ajustes", sub: "Horários, tipos, profissionais, convênios", Icone: Settings },
   { href: "/consumo", titulo: "Consumo de IA", sub: "Quanto gastou no mês, no seu nome", Icone: Coins },
 ];
 

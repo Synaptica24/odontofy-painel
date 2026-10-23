@@ -27,7 +27,8 @@ export async function proxy(request: NextRequest) {
     });
     try {
       const { data: { user }, error } = await cliente.auth.getUser();
-      if (!error && user && process.env.AUTH_EMAIL_PERMITIDO && user.email?.toLowerCase() === process.env.AUTH_EMAIL_PERMITIDO.trim().toLowerCase()) {
+      const permitido = process.env.AUTH_EMAIL_PERMITIDO?.trim().toLowerCase();
+      if (!error && user && (!permitido || user.email?.toLowerCase() === permitido)) {
         const conta = await cliente.rpc('conta_permitida');
         autorizado = !conta.error && conta.data === true;
       }

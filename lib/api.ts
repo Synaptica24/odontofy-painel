@@ -3,10 +3,11 @@ import * as fixture from './fixture';
 import { operacaoPainel } from './painel-actions';
 import { clienteBrowser } from './supabase/browser';
 import type {
-  Agendamento, Bloqueio, CallbackConversas, CallbackMensagens, CancelarInscricao, Config,
-  Conversa, DataCivil, DataHora, DetalheConversa, DetalhePaciente, EntradaConhecimento,
-  FiltroAgenda, FiltroConversas, Id, ItemConhecimento, Mensagem, Paciente, ResultadoAgenda,
-  ResultadoApi, ResultadoConsumoDoMes, ResultadoStatusCampanha, ResumoConversa, ResumoDoDia,
+  Agendamento, Anamnese, Anexo, Bloqueio, CallbackConversas, CallbackMensagens, CancelarInscricao, Config,
+  Consultorio, Contrato, ContratoModelo, Convenio, Conversa, DadosPaciente, DataCivil, DataHora, DetalheConversa, DetalhePaciente, EntradaConhecimento,
+  Evolucao, FiltroAgenda, FiltroAgendaCompleto, FiltroConversas, FinanceiroResumo, Id, ItemConhecimento, ItemOdontograma, Mensagem, NovoAgendamento,
+  Orcamento, OrcamentoItem, Paciente, Profissional, Prontuario, ResultadoAgenda,
+  ResultadoApi, ResultadoConsumoDoMes, ResultadoStatusCampanha, ResumoConversa, ResumoDoDia, Retorno, StatusOrcamento, StatusRetorno,
 } from './contratos';
 
 export const FIXTURE_ATIVA = !process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -140,6 +141,52 @@ function inscrever<T>(tabela: 'conversas' | 'mensagens', ler: () => Promise<Resu
     return cancelar;
   } catch { queueMicrotask(() => entregar(indisponivel())); return () => { cancelada = true; }; }
 }
+/* ---------- Clínica: consultórios, agenda do painel, prontuário, orçamentos, retornos, contratos, financeiro ----------
+   Sem Supabase (fixture) estas funções devolvem "indisponível": a demonstração real vive no consultório "Demonstração". */
+const semFixture = <T>(): Promise<ResultadoApi<T>> => Promise.resolve({ sucesso: false, dados: null, erro: { codigo: 'indisponivel', mensagem: 'Disponível só com o Supabase configurado.' } });
+const clinica = <T>(operacao: string, argumentos: Record<string, unknown> = {}) => (FIXTURE_ATIVA ? semFixture<T>() : real<T>(operacao, argumentos));
+
+export const meusConsultorios = () => clinica<Consultorio[]>('meusConsultorios');
+export const escolherConsultorio = (id: Id) => clinica<Id>('escolherConsultorio', { id });
+export const listarProfissionais = () => clinica<Profissional[]>('listarProfissionais');
+export const salvarProfissional = (profissional: Partial<Profissional>) => clinica<Profissional>('salvarProfissional', { profissional });
+export const listarConvenios = () => clinica<Convenio[]>('listarConvenios');
+export const salvarConvenio = (convenio: Partial<Convenio>) => clinica<Convenio>('salvarConvenio', { convenio });
+export const excluirConvenio = (id: Id) => clinica<null>('excluirConvenio', { id });
+
+export const salvarPaciente = (id: Id | null, dados: DadosPaciente) => clinica<Paciente>('salvarPaciente', { id, dados });
+export const criarAgendamento = (dados: NovoAgendamento) => clinica<Agendamento>('criarAgendamento', { dados });
+export const editarAgendamento = (id: Id, alteracoes: Partial<NovoAgendamento>) => clinica<Agendamento>('editarAgendamento', { id, alteracoes });
+export const concluirAgendamento = (id: Id) => clinica<Agendamento>('concluirAgendamento', { id });
+export const criarBloqueioPainel = (inicio: DataHora, fim: DataHora, profissional_id?: Id | null, motivo?: string) => clinica<Bloqueio>('criarBloqueioPainel', { inicio, fim, profissional_id, motivo });
+export const removerBloqueio = (id: Id) => clinica<null>('removerBloqueio', { id });
+export const marcarConfirmacaoEnviada = (id: Id) => clinica<Agendamento>('marcarConfirmacaoEnviada', { id });
+export const agendaFiltrada = (data: DataCivil, dias: 1 | 7, filtro: FiltroAgendaCompleto = {}) => clinica<ResultadoAgenda>('agendaFiltrada', { data, dias, filtro });
+
+export const prontuario = (id: Id) => clinica<Prontuario>('prontuario', { id });
+export const salvarAnamnese = (id: Id, anamnese: Partial<Anamnese>) => clinica<Anamnese>('salvarAnamnese', { id, anamnese });
+export const salvarItemOdontograma = (item: Partial<ItemOdontograma> & { paciente_id: Id; dente: number; procedimento: string }) => clinica<ItemOdontograma>('salvarItemOdontograma', { item });
+export const removerItemOdontograma = (id: Id) => clinica<null>('removerItemOdontograma', { id });
+export const adicionarEvolucao = (id: Id, texto: string, extras: { profissional_id?: Id | null; agendamento_id?: Id | null; corrige_id?: Id | null } = {}) => clinica<Evolucao>('adicionarEvolucao', { id, texto, ...extras });
+export const urlAnexo = (id: Id) => clinica<{ url: string }>('urlAnexo', { id });
+export const removerAnexo = (id: Id) => clinica<null>('removerAnexo', { id });
+export type { Anexo };
+
+export const salvarOrcamento = (orcamento: { id?: Id; paciente_id: Id; titulo?: string; desconto?: number; observacao?: string; validade?: DataCivil | null; itens: OrcamentoItem[] }) => clinica<Orcamento>('salvarOrcamento', { orcamento });
+export const decidirOrcamento = (id: Id, status: StatusOrcamento) => clinica<Orcamento>('decidirOrcamento', { id, status });
+export const excluirOrcamento = (id: Id) => clinica<null>('excluirOrcamento', { id });
+export const criarRetorno = (paciente_id: Id, motivo: string, previsto_para: DataCivil) => clinica<Retorno>('criarRetorno', { paciente_id, motivo, previsto_para });
+export const atualizarRetorno = (id: Id, status: StatusRetorno, agendamento_id?: Id | null) => clinica<Retorno>('atualizarRetorno', { id, status, agendamento_id });
+export const financeiroResumo = (inicio: DataCivil, fim: DataCivil) => clinica<FinanceiroResumo>('financeiroResumo', { inicio, fim });
+
+export const listarModelos = () => clinica<ContratoModelo[]>('listarModelos');
+export const salvarModelo = (modelo: Partial<ContratoModelo>) => clinica<ContratoModelo>('salvarModelo', { modelo });
+export const excluirModelo = (id: Id) => clinica<null>('excluirModelo', { id });
+export const gerarContrato = (entrada: { paciente_id: Id; modelo_id?: Id | null; titulo?: string; conteudo?: string; variaveis?: Record<string, string> }) => clinica<Contrato>('gerarContrato', { ...entrada });
+export const enviarContrato = (id: Id) => clinica<Contrato & { link: string }>('enviarContrato', { id });
+export const cancelarContrato = (id: Id) => clinica<Contrato>('cancelarContrato', { id });
+export const urlContrato = (id: Id, assinado = false) => clinica<{ url: string }>('urlContrato', { id, assinado });
+
 export function inscreverEmConversas(cb: CallbackConversas): CancelarInscricao {
   return FIXTURE_ATIVA ? fixture.inscreverEmConversas(cb) : inscrever('conversas', () => real<ResumoConversa[]>('retratoConversas'), cb);
 }

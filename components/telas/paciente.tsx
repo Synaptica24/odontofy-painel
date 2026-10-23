@@ -1,101 +1,92 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useRef, useState } from "react";
-import { toast } from "sonner";
-import { ArrowLeft } from "lucide-react";
-import { buscarPaciente, salvarObservacao } from "@/lib/api";
-import type { Agendamento, Conversa } from "@/lib/contratos";
+import { useEffect, useState } from "react";
+import { ArrowLeft, MessageCircle, Pencil } from "lucide-react";
+import { prontuario } from "@/lib/api";
+import type { Prontuario } from "@/lib/contratos";
 import { useApi } from "@/components/dados/use-api";
-import { diaCurto, hora, quando, telefoneBonito } from "@/components/dados/datas";
-import {
-  AreaTexto,
-  Bloco,
-  Cabecalho,
-  Erro,
-  Item,
-  Linha,
-  Lista,
-  OssoLinha,
-  Pagina,
-  Vazio,
-} from "@/components/ui/primitivos";
+import { telefoneBonito } from "@/components/dados/datas";
+import { Botao, Cabecalho, Erro, OssoLinha, Pagina } from "@/components/ui/primitivos";
+import { Chip, ChipCor, cpfBonito, idade, linkWhatsApp } from "@/components/clinica/ficha-util";
+import { FichaDados } from "@/components/clinica/ficha-dados";
+import { FichaResumo } from "@/components/clinica/ficha-resumo";
+import { FichaAnamnese, alertasAnamnese } from "@/components/clinica/ficha-anamnese";
+import { FichaOdontograma } from "@/components/clinica/ficha-odontograma";
+import { FichaEvolucao } from "@/components/clinica/ficha-evolucao";
+import { FichaAnexos } from "@/components/clinica/ficha-anexos";
+import { FichaOrcamentos, type VariaveisContrato } from "@/components/clinica/ficha-orcamentos";
+import { FichaContratos } from "@/components/clinica/ficha-contratos";
+import { FichaConsultas } from "@/components/clinica/ficha-consultas";
+import { FichaAcessos } from "@/components/clinica/ficha-acessos";
 
-const ORIGEM: Record<string, string> = {
-  whatsapp: "Chegou pelo WhatsApp",
-  site: "Chegou pelo site",
-  campanha: "Voltou pela campanha",
-  indicacao: "Veio por indicação",
-};
-const STATUS: Record<string, string> = {
-  novo: "Contato novo",
-  em_conversa: "Em conversa",
-  agendado: "Agendado",
-  paciente: "Paciente",
-  fora_da_base: "Fora da base",
-};
+/* Ficha do paciente = prontuário completo em abas. Uma chamada (prontuario) traz tudo; as abas
+   editam em cima do mesmo objeto (definir) para a tela nunca pular. */
 
-function rotuloConversa(c: Conversa) {
-  if (c.status === "escalada") return "esperando você";
-  if (c.status === "assumida") return "você respondeu";
-  if (c.status === "encerrada") return "encerrada";
-  return "com a IA";
-}
-function marcaAgendamento(a: Agendamento) {
-  if (a.status === "sugerido") return "anel" as const;
-  if (a.status === "faltou") return "falta" as const;
-  if (a.status === "cancelado") return "nada" as const;
-  return a.origem === "agente" ? ("ia" as const) : ("voce" as const);
-}
+type Aba = "resumo" | "anamnese" | "odontograma" | "evolucao" | "anexos" | "orcamentos" | "contratos" | "consultas" | "acessos";
+const ABAS: { valor: Aba; rotulo: string }[] = [
+  { valor: "resumo", rotulo: "Resumo" }, { valor: "anamnese", rotulo: "Anamnese" }, { valor: "odontograma", rotulo: "Odontograma" },
+  { valor: "evolucao", rotulo: "Evolução" }, { valor: "anexos", rotulo: "Anexos" }, { valor: "orcamentos", rotulo: "Orçamentos" },
+  { valor: "contratos", rotulo: "Contratos" }, { valor: "consultas", rotulo: "Consultas" }, { valor: "acessos", rotulo: "Acessos" },
+];
+const STATUS: Record<string, string> = { novo: "Contato novo", em_conversa: "Em conversa", agendado: "Agendado", paciente: "Paciente", fora_da_base: "Fora da base" };
 
 export function TelaPaciente({ id }: { id: string }) {
-  const r = useApi(() => buscarPaciente(id), [id]);
-  const [obs, setObs] = useState<string | null>(null);
-  const [salvo, setSalvo] = useState<"parado" | "salvando" | "salvo">("parado");
-  const timer = useRef<number | null>(null);
-
+  const r = useApi<Prontuario>(() => prontuario(id), [id]);
+  const [aba, setAba] = useState<Aba>("resumo");
+  const [editando, setEditando] = useState(false);
+  const [variaveisContrato, setVariaveisContrato] = useState<VariaveisContrato | null>(null);
   const d = r.dados;
-  const texto = obs ?? d?.paciente.observacoes ?? "";
 
+  // aba vinda da URL (#anamnese etc.) e guardada ao trocar
   useEffect(() => {
-    if (obs === null || !d || obs === d.paciente.observacoes) return;
-    if (timer.current) window.clearTimeout(timer.current);
-    timer.current = window.setTimeout(async () => {
-      const res = await salvarObservacao(id, obs);
-      if (!res.sucesso) {
-        setSalvo("parado");
-        toast.error("A observação não salvou.", { description: `${res.erro.mensagem} O texto continua aí.` });
-        return;
-      }
-      r.definir((x) => ({ ...x, paciente: res.dados }));
-      setSalvo("salvo");
-    }, 700);
-    return () => {
-      if (timer.current) window.clearTimeout(timer.current);
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [obs]);
+    const id = window.requestAnimationFrame(() => {
+      const h = window.location.hash.replace("#", "") as Aba;
+      if (ABAS.some((a) => a.valor === h)) setAba(h);
+    });
+    return () => window.cancelAnimationFrame(id);
+  }, []);
+  function trocar(a: Aba) {
+    setAba(a);
+    window.history.replaceState(null, "", `#${a}`);
+  }
 
-  const [agora] = useState(() => Date.now());
-  const futuros = d?.agendamentos.filter((a) => new Date(a.inicio).getTime() >= agora && a.status !== "cancelado") ?? [];
-  const passados = d?.agendamentos.filter((a) => new Date(a.inicio).getTime() < agora || a.status === "cancelado") ?? [];
+  const contagem = (a: Aba) => {
+    if (!d) return null;
+    switch (a) {
+      case "odontograma": return d.odontograma.filter((i) => i.status === "planejado").length || null;
+      case "evolucao": return d.evolucoes.length || null;
+      case "anexos": return d.anexos.length || null;
+      case "orcamentos": return d.orcamentos.filter((o) => o.status === "pendente").length || null;
+      case "contratos": return d.contratos.filter((c) => c.status === "enviado").length || null;
+      default: return null;
+    }
+  };
+  const anos = d ? idade(d.paciente.nascimento) : null;
+  const alertas = d ? alertasAnamnese(d.anamnese) : [];
 
   return (
-    <Pagina>
-      <Link href="/conversas" className="a-voltar pressa">
-        <ArrowLeft size={18} strokeWidth={2} aria-hidden /> Conversas
+    <Pagina className="ficha">
+      <Link href="/pacientes" className="a-voltar pressa">
+        <ArrowLeft size={18} strokeWidth={2} aria-hidden /> Pacientes
       </Link>
       {d ? (
         <Cabecalho
           titulo={d.paciente.nome}
           sobre={
             <>
-              <a className="num underline-offset-2 hover:underline" href={`tel:${d.paciente.telefone_e164}`}>
-                {telefoneBonito(d.paciente.telefone_e164)}
-              </a>
-              {" · "}
-              {STATUS[d.paciente.status] ?? d.paciente.status}
+              <a className="num underline-offset-2 hover:underline" href={`tel:${d.paciente.telefone_e164}`}>{telefoneBonito(d.paciente.telefone_e164)}</a>
+              {anos !== null && ` · ${anos} anos`}
+              {d.paciente.cpf && ` · CPF ${cpfBonito(d.paciente.cpf)}`}
             </>
+          }
+          acao={
+            <div className="ficha__acoes">
+              <a className="a-botao pressa inline-flex items-center gap-1.5" target="_blank" rel="noopener" href={linkWhatsApp(d.paciente.telefone_e164)} aria-label="Abrir conversa no WhatsApp">
+                <MessageCircle size={16} /> <span className="ficha__acao-texto">WhatsApp</span>
+              </a>
+              <Botao onClick={() => setEditando(true)}><Pencil size={16} /> <span className="ficha__acao-texto">Editar dados</span></Botao>
+            </div>
           }
         />
       ) : (
@@ -104,90 +95,45 @@ export function TelaPaciente({ id }: { id: string }) {
           <span className="osso mt-2 block h-7 w-56" />
         </div>
       )}
+      {d && (
+        <div className="ficha__chips">
+          <Chip cor={d.paciente.status === "paciente" ? "verde" : d.paciente.status === "agendado" ? "azul" : "cinza"}>{STATUS[d.paciente.status] ?? d.paciente.status}</Chip>
+          {d.paciente.convenio ? <ChipCor cor={d.paciente.convenio.cor}>{d.paciente.convenio.nome}{d.paciente.numero_carteirinha ? ` · ${d.paciente.numero_carteirinha}` : ""}</ChipCor> : <Chip>Particular</Chip>}
+          {d.paciente.nao_perturbe && <Chip cor="vermelho">Não perturbe</Chip>}
+          {alertas.filter((a) => a.cor === "vermelho").map((a) => <Chip key={a.texto} cor="vermelho">{a.texto}</Chip>)}
+        </div>
+      )}
       {r.fase === "erro" && !d && <Erro mensagem={r.erro} tentar={r.recarregar} />}
 
-      {d && (
-        <p className="mt-2 text-[13px] text-tinta-2">
-          {ORIGEM[d.paciente.origem] ?? d.paciente.origem} em {diaCurto(d.paciente.primeiro_contato)}
-          {d.paciente.nao_perturbe ? " · pediu para não receber mensagens" : ""}
-          {d.paciente.codental_id ? ` · Codental ${d.paciente.codental_id}` : ""}
-        </p>
+      <div className="ficha__abas" role="tablist" aria-label="Seções da ficha">
+        {ABAS.map((a) => {
+          const n = contagem(a.valor);
+          return (
+            <button key={a.valor} type="button" role="tab" aria-selected={aba === a.valor} className="ficha__aba pressa" onClick={() => trocar(a.valor)}>
+              {a.rotulo}{n ? <span className="num">{n}</span> : null}
+            </button>
+          );
+        })}
+      </div>
+
+      {!d ? (
+        <section className="a-bloco a-bloco--primeiro"><OssoLinha n={4} /></section>
+      ) : (
+        <div key={aba} className="ficha__painel" role="tabpanel">
+          {aba === "resumo" && <FichaResumo d={d} definir={r.definir} irPara={(a) => trocar(a)} />}
+          {aba === "anamnese" && <FichaAnamnese d={d} definir={r.definir} />}
+          {aba === "odontograma" && <FichaOdontograma d={d} definir={r.definir} />}
+          {aba === "evolucao" && <FichaEvolucao d={d} definir={r.definir} />}
+          {aba === "anexos" && <FichaAnexos d={d} definir={r.definir} />}
+          {aba === "orcamentos" && <FichaOrcamentos d={d} definir={r.definir} aoGerarContrato={(v) => { setVariaveisContrato(v); trocar("contratos"); }} />}
+          {aba === "contratos" && <FichaContratos d={d} definir={r.definir} variaveisIniciais={variaveisContrato} aoConsumirVariaveis={() => setVariaveisContrato(null)} />}
+          {aba === "consultas" && <FichaConsultas d={d} />}
+          {aba === "acessos" && <FichaAcessos d={d} />}
+        </div>
       )}
 
-      <Bloco titulo="Observações" id="obs" lado={salvo === "salvando" ? "salvando…" : salvo === "salvo" ? "salvo" : undefined} primeiro>
-        <AreaTexto
-          rows={3}
-          value={texto}
-          onChange={(e) => {
-            setSalvo("salvando");
-            setObs(e.target.value);
-          }}
-          placeholder="Algo que você quer lembrar sobre essa pessoa"
-          disabled={!d}
-        />
-      </Bloco>
-
-      <Bloco titulo="Próximos horários" id="futuros">
-        {!d ? (
-          <OssoLinha n={1} />
-        ) : futuros.length === 0 ? (
-          <Vazio titulo="Nada marcado." sub={<Link href="/agenda" className="underline">Ver a agenda</Link>} icone={<span className="marca" />} />
-        ) : (
-          <Lista>
-            {futuros.map((a) => (
-              <Item key={a.id}>
-                <Linha
-                  marca={marcaAgendamento(a)}
-                  titulo={
-                    <>
-                      <span className="num">{diaCurto(a.inicio)} · {hora(a.inicio)}</span>
-                    </>
-                  }
-                  sub={`${a.tipo}${a.status === "sugerido" ? " · a IA sugeriu, falta confirmar" : ""}${a.observacao ? ` · ${a.observacao}` : ""}`}
-                />
-              </Item>
-            ))}
-          </Lista>
-        )}
-      </Bloco>
-
-      <Bloco titulo="Conversas" id="conversas">
-        {!d ? (
-          <OssoLinha n={2} />
-        ) : d.conversas.length === 0 ? (
-          <Vazio titulo="Nenhuma conversa ainda." icone={<span className="marca" />} />
-        ) : (
-          <Lista>
-            {d.conversas.map((c) => (
-              <Item key={c.id}>
-                <Linha
-                  marca={c.status === "escalada" ? "escalada" : c.status === "assumida" ? "voce" : c.status === "encerrada" ? "feito" : "ia"}
-                  alerta={c.status === "escalada"}
-                  href={`/conversas/${c.id}`}
-                  titulo={c.resumo_gerado ?? c.motivo_escalonamento ?? "Conversa"}
-                  sub={rotuloConversa(c)}
-                  lado={<span className="a-linha__meta num">{quando(c.iniciada_em)}</span>}
-                />
-              </Item>
-            ))}
-          </Lista>
-        )}
-      </Bloco>
-
-      {d && passados.length > 0 && (
-        <Bloco titulo="Horários passados" id="passados">
-          <Lista>
-            {passados.map((a) => (
-              <Item key={a.id}>
-                <Linha
-                  marca={marcaAgendamento(a)}
-                  titulo={<span className="num">{diaCurto(a.inicio)} · {hora(a.inicio)}</span>}
-                  sub={`${a.tipo}${a.status === "faltou" ? " · faltou" : a.status === "cancelado" ? " · cancelado" : ""}`}
-                />
-              </Item>
-            ))}
-          </Lista>
-        </Bloco>
+      {d && editando && (
+        <FichaDados paciente={d.paciente} aoFechar={() => setEditando(false)} aoSalvar={(p) => r.definir((x) => ({ ...x, paciente: p }))} />
       )}
     </Pagina>
   );

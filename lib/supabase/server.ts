@@ -1,5 +1,6 @@
 import 'server-only';
 import { createServerClient } from '@supabase/ssr';
+import { createClient } from '@supabase/supabase-js';
 import { cookies } from 'next/headers';
 
 export async function clienteServer() {
@@ -18,12 +19,23 @@ export async function clienteServer() {
   });
 }
 
+/** Sessão válida = usuário logado que é membro de algum consultório (RPC conta_permitida).
+ *  AUTH_EMAIL_PERMITIDO, quando definido, restringe ainda mais a um único e-mail. */
 export async function sessaoAutorizada() {
   const cliente = await clienteServer();
   const { data: { user }, error } = await cliente.auth.getUser();
+  if (error || !user) throw { code: '42501' };
   const permitido = process.env.AUTH_EMAIL_PERMITIDO?.trim().toLowerCase();
-  if (error || !user || !permitido || user.email?.toLowerCase() !== permitido) throw { code: '42501' };
+  if (permitido && user.email?.toLowerCase() !== permitido) throw { code: '42501' };
   const { data, error: erroConta } = await cliente.rpc('conta_permitida');
   if (erroConta || data !== true) throw { code: '42501' };
   return cliente;
+}
+
+/** Cliente administrativo (service role). Só no servidor, só para fluxos sem sessão (assinatura pelo paciente, cron). */
+export function clienteAdmin() {
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const chave = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  if (!url || !chave) throw new Error('Service role não configurada.');
+  return createClient(url, chave, { auth: { autoRefreshToken: false, persistSession: false } });
 }
