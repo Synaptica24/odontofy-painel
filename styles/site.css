@@ -13,8 +13,10 @@
   --s-destaque: #b5502a;
   --s-destaque-escuro: #8f3e1f;
   --s-destaque-fundo: #f2e3da;
-  --s-serif: var(--fonte-serif), "Iowan Old Style", "Palatino Linotype", Georgia, serif;
-  --s-sans: var(--fonte-inter), ui-sans-serif, system-ui, sans-serif;
+  /* SF Pro: nos aparelhos Apple vem do próprio sistema (a Apple não permite embutir o arquivo no site).
+     Nos demais, cai na Inter, que já está carregada e tem desenho muito próximo. */
+  --s-titulo: "SF Pro Display", -apple-system, BlinkMacSystemFont, var(--fonte-inter), "Segoe UI", system-ui, sans-serif;
+  --s-sans: "SF Pro Text", -apple-system, BlinkMacSystemFont, var(--fonte-inter), "Segoe UI", system-ui, sans-serif;
   --s-largura: 76rem;
   --s-gutter: 1.25rem;
   --s-saida: cubic-bezier(0.23, 1, 0.32, 1);
@@ -99,7 +101,7 @@
   background: var(--s-destaque);
 }
 .s-titulo {
-  font-family: var(--s-serif);
+  font-family: var(--s-titulo);
   font-size: clamp(2.25rem, 5.6vw, 4.25rem);
   line-height: 1.02;
   letter-spacing: -0.012em;
@@ -107,18 +109,18 @@
 }
 .s-titulo em,
 .s-titulo-2 em {
-  font-style: italic;
+  font-style: normal;
   color: var(--s-destaque);
 }
 .s-titulo-2 {
-  font-family: var(--s-serif);
+  font-family: var(--s-titulo);
   font-size: clamp(1.9rem, 4vw, 3rem);
   line-height: 1.08;
   letter-spacing: -0.01em;
   text-wrap: balance;
 }
 .s-titulo-3 {
-  font-family: var(--s-serif);
+  font-family: var(--s-titulo);
   font-size: clamp(1.4rem, 2.4vw, 1.75rem);
   line-height: 1.15;
 }
@@ -318,7 +320,7 @@
   height: 4rem;
 }
 .s-topo__nome {
-  font-family: var(--s-serif);
+  font-family: var(--s-titulo);
   font-size: 1.3125rem;
   letter-spacing: -0.005em;
   line-height: 1;
@@ -405,9 +407,9 @@
   left: 1rem;
   bottom: 1rem;
   z-index: 1;
-  font-family: var(--s-serif);
+  font-family: var(--s-titulo);
   font-size: 1.125rem;
-  font-style: italic;
+  font-style: normal;
   color: var(--s-grafite-2);
   max-width: 14rem;
   line-height: 1.3;
@@ -445,14 +447,14 @@
   border-bottom: 1px solid var(--s-linha);
 }
 .s-dor__numero {
-  font-family: var(--s-serif);
+  font-family: var(--s-titulo);
   font-size: 1.75rem;
   line-height: 1;
   color: var(--s-destaque);
   padding-top: 0.2rem;
 }
 .s-dor h3 {
-  font-family: var(--s-serif);
+  font-family: var(--s-titulo);
   font-size: 1.5rem;
   line-height: 1.15;
   margin-bottom: 0.5rem;
@@ -514,7 +516,7 @@
   box-shadow: 0 0 0 3px var(--s-destaque-fundo);
 }
 .s-trat__nome {
-  font-family: var(--s-serif);
+  font-family: var(--s-titulo);
   font-size: 1.5rem;
   line-height: 1.1;
 }
@@ -670,10 +672,10 @@
   align-content: center;
 }
 .s-sobre__citacao {
-  font-family: var(--s-serif);
+  font-family: var(--s-titulo);
   font-size: clamp(1.4rem, 2.6vw, 1.9rem);
   line-height: 1.25;
-  font-style: italic;
+  font-style: normal;
   color: var(--s-grafite);
   border-left: 2px solid var(--s-destaque);
   padding-left: 1.25rem;
@@ -731,7 +733,7 @@
   font-variant-numeric: tabular-nums;
 }
 .s-passo h3 {
-  font-family: var(--s-serif);
+  font-family: var(--s-titulo);
   font-size: 1.375rem;
   line-height: 1.2;
   margin-bottom: 0.4rem;
@@ -890,7 +892,7 @@
   user-select: none;
 }
 .s-carta__texto {
-  font-family: var(--s-serif);
+  font-family: var(--s-titulo);
   font-size: clamp(1.25rem, 2vw, 1.5rem);
   line-height: 1.3;
   text-wrap: pretty;
@@ -907,7 +909,7 @@
   color: var(--s-grafite-3);
 }
 .s-carta__aspas {
-  font-family: var(--s-serif);
+  font-family: var(--s-titulo);
   font-size: 3rem;
   line-height: 0.6;
   color: var(--s-destaque);
@@ -988,7 +990,7 @@
   border: 0;
   text-align: left;
   cursor: pointer;
-  font-family: var(--s-serif);
+  font-family: var(--s-titulo);
   font-size: 1.3125rem;
   line-height: 1.2;
   color: var(--s-grafite);
@@ -1251,4 +1253,54 @@
   .s-compara__alca {
     transition-property: background-color, border-color, opacity;
   }
+}
+
+/* ---------- tipografia SF Pro ----------
+   A SF Display pede peso mais alto e tracking negativo nos tamanhos grandes;
+   o destaque em terracota passa a ser só cor (sem itálico), no estilo Apple. */
+.s-titulo {
+  font-weight: 600;
+  letter-spacing: -0.035em;
+  line-height: 1.04;
+}
+.s-titulo-2 {
+  font-weight: 600;
+  letter-spacing: -0.03em;
+  line-height: 1.08;
+}
+.s-titulo-3,
+.s-trat__nome,
+.s-dor h3,
+.s-passo h3 {
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+.s-topo__nome {
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  font-size: 1.125rem;
+}
+.s-faq__pergunta {
+  font-weight: 500;
+  letter-spacing: -0.015em;
+  font-size: 1.1875rem;
+}
+.s-dor__numero {
+  font-weight: 500;
+  letter-spacing: -0.02em;
+}
+.s-carta__texto,
+.s-sobre__citacao,
+.s-hero__legenda {
+  font-weight: 500;
+  letter-spacing: -0.015em;
+}
+.s-hero__legenda {
+  font-size: 1rem;
+}
+.s-carta__aspas {
+  font-weight: 600;
+}
+.site {
+  letter-spacing: -0.006em;
 }

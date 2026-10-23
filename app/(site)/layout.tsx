@@ -1,16 +1,10 @@
 import type { Metadata } from "next";
-import { Instrument_Serif } from "next/font/google";
 import { site } from "@/config/site";
 import { Analytics } from "@/components/site/analytics";
 import "@/styles/site.css";
 
-const serif = Instrument_Serif({
-  variable: "--fonte-serif",
-  subsets: ["latin"],
-  weight: "400",
-  style: ["normal", "italic"],
-  display: "swap",
-});
+// Tipografia: SF Pro Display/Text do sistema (Apple) com Inter de reserva, já carregada em app/layout.tsx.
+// Nenhuma fonte extra para baixar: o site fica mais leve.
 
 const titulo = `${site.nome} · Dentista em ${site.cidade}`;
 const descricao = `Dentista em ${site.bairro}, ${site.cidade}. Avaliação sem pressa, plano por escrito e atendimento para quem tem medo de dentista. Agende pelo WhatsApp.`;
@@ -64,7 +58,7 @@ export default function LayoutSite({ children }: { children: React.ReactNode }) 
     priceRange: "$$",
   };
   return (
-    <div className={`site ${serif.variable}`}>
+    <div className="site">
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }} />
       {children}
       <Analytics />

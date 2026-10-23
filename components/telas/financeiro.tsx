@@ -7,7 +7,7 @@ import { MessageCircle } from "lucide-react";
 import { atualizarRetorno, confirmarSugestao, decidirOrcamento, financeiroResumo, marcarConfirmacaoEnviada } from "@/lib/api";
 import type { FinanceiroResumo, Retorno } from "@/lib/contratos";
 import { useApi } from "@/components/dados/use-api";
-import { diaCurto, diaLongo, hojeCivil, hora, reais, somarDias, telefoneBonito } from "@/components/dados/datas";
+import { diaCurto, diaLongo, hojeCivil, hora, inicioDaSemana, reais, somarDias, telefoneBonito } from "@/components/dados/datas";
 import { Abas, Bloco, Botao, Cabecalho, Erro, Item, Linha, Lista, OssoLinha, Pagina, Vazio } from "@/components/ui/primitivos";
 
 /* Financeiro: faturamento previsto e realizado, orçamentos por estado, confirmações da semana,
@@ -19,8 +19,13 @@ const CHIP: Record<string, string> = { pendente: "chip--amarelo", aprovado: "chi
 function intervalo(p: Periodo): [string, string] {
   const hoje = hojeCivil();
   if (p === "30d") return [somarDias(hoje, -29), hoje];
-  if (p === "mes") return [`${hoje.slice(0, 7)}-01`, hoje.slice(0, 7) + "-31"];
-  const seg = somarDias(hoje, -(([1, 2, 3, 4, 5, 6, 0][new Date(`${hoje}T12:00:00-03:00`).getUTCDay()] + 6) % 7));
+  if (p === "mes") {
+    // último dia do mês de verdade (30, 31, 28 ou 29), sem depender do fuso do aparelho
+    const [ano, mes] = hoje.split("-").map(Number);
+    const ultimo = new Date(Date.UTC(ano, mes, 0)).getUTCDate();
+    return [`${hoje.slice(0, 7)}-01`, `${hoje.slice(0, 7)}-${String(ultimo).padStart(2, "0")}`];
+  }
+  const seg = inicioDaSemana(hoje);
   return [seg, somarDias(seg, 6)];
 }
 function textoRetorno(r: Retorno) {

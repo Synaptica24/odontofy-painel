@@ -1,4 +1,5 @@
 import 'server-only';
+import { randomBytes } from 'node:crypto';
 import { clienteAdmin } from '../supabase/server';
 import { cpfValido, gerarPdfAssinado } from './assinatura';
 import type { CodigoErro, ResultadoApi } from '../contratos';
@@ -88,16 +89,27 @@ export async function assinarPorToken(token: string, entrada: EntradaAssinatura)
   const ip = String(entrada.ip ?? '').slice(0, 64);
   const user_agent = String(entrada.user_agent ?? '').slice(0, 300);
   const { pdf, hash_original } = await gerarPdfAssinado(new Uint8Array(await original.arrayBuffer()), { nome, cpf, ip, user_agent, assinado_em, imagem_png: imagem });
-  const caminho = `${c.consultorio_id}/${c.paciente_id}/${c.id}-assinado.pdf`;
-  const { error: eUp } = await admin.storage.from('contratos').upload(caminho, Buffer.from(pdf), { contentType: 'application/pdf', upsert: true });
+  // Nome único por tentativa e sem upsert: dois toques em "Assinar" (ou uma corrida com o cancelamento)
+  // nunca sobrescrevem o PDF de outra assinatura. Só a tentativa que vencer o UPDATE condicional vale.
+  const caminho = `${c.consultorio_id}/${c.paciente_id}/${c.id}-assinado-${Date.now()}-${randomBytes(4).toString('hex')}.pdf`;
+  const { error: eUp } = await admin.storage.from('contratos').upload(caminho, Buffer.from(pdf), { contentType: 'application/pdf', upsert: false });
   if (eUp) return erro('indisponivel', 'Não foi possível guardar o documento assinado. Tente de novo.');
   const assinatura = { nome, cpf, ip, user_agent, assinado_em, hash_documento: hash_original };
-  const { error: eUpd } = await admin.from('contratos')
+  const { data: atualizados, error: eUpd } = await admin.from('contratos')
     // O token fica: depois de assinado ele só serve para o paciente reabrir o link e baixar o PDF assinado
     // (assinar de novo é recusado pelo status). token_expira_em fica também, mas só vale para o estado 'enviado'.
     .update({ status: 'assinado', assinatura, assinado_em, pdf_assinado_caminho: caminho })
-    .eq('id', c.id).eq('status', 'enviado');
-  if (eUpd) return erro('indisponivel', 'Não foi possível registrar a assinatura. Tente de novo.');
+    .eq('id', c.id).eq('status', 'enviado').eq('token', token)
+    .select('id');
+  if (eUpd || !atualizados?.length) {
+    // Perdeu a corrida (já assinado, cancelado ou reenviado com outro token): descarta o PDF desta tentativa.
+    await admin.storage.from('contratos').remove([caminho]);
+    if (eUpd) return erro('indisponivel', 'Não foi possível registrar a assinatura. Tente de novo.');
+    const { data: agora } = await admin.from('contratos').select('status').eq('id', c.id).maybeSingle();
+    return agora?.status === 'assinado'
+      ? erro('conflito', 'Este documento já foi assinado.')
+      : erro('nao_autorizado', 'Este link não vale mais. Peça um novo link ao consultório.');
+  }
   await admin.from('acessos_prontuario').insert({ consultorio_id: c.consultorio_id, paciente_id: c.paciente_id, user_id: null, acao: 'assinou_contrato', detalhe: `${c.titulo} · ${nome}`, ip });
   tentativas.delete(c.id);
   return { sucesso: true, dados: { assinado_em }, erro: null };

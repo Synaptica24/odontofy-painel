@@ -173,7 +173,9 @@ export async function executarClinica(operacao: string, entrada: unknown): Promi
           const { data: modelo, error: eM } = await cliente.from('contrato_modelos').select('*').eq('id', id(a.modelo_id)).single(); if (eM) throw eM;
           conteudoBase = modelo.conteudo; titulo = texto(a.titulo ?? modelo.nome, 160, false); modeloId = modelo.id;
         } else { conteudoBase = texto(a.conteudo, 60000, false); titulo = texto(a.titulo, 160, false); }
-        const { data: cons } = await cliente.from('consultorios').select('nome').limit(1).maybeSingle();
+        // O usuário é membro de mais de um consultório (real e demonstração): usa o ATIVO, nunca "o primeiro".
+        const { data: atualId, error: eAtual } = await cliente.rpc('consultorio_atual'); if (eAtual) throw eAtual;
+        const { data: cons } = await cliente.from('consultorios').select('nome').eq('id', atualId as string).maybeSingle();
         const { data: prof } = await cliente.from('profissionais').select('nome,cro').order('ordem').limit(1).maybeSingle();
         const hoje = new Date();
         const variaveis: Record<string, string> = {
@@ -188,7 +190,9 @@ export async function executarClinica(operacao: string, entrada: unknown): Promi
         const { data: criado, error: eC } = await cliente.from('contratos').insert({ paciente_id: pid, modelo_id: modeloId, titulo, conteudo, variaveis, status: 'rascunho' }).select().single(); if (eC) throw eC;
         const pdf = await gerarPdfContrato(titulo, conteudo, `${cons?.nome ?? 'Consultório'} · ${paciente.nome}`);
         const caminho = `${criado.consultorio_id}/${pid}/${criado.id}.pdf`;
-        const { error: eUp } = await cliente.storage.from('contratos').upload(caminho, Buffer.from(pdf), { contentType: 'application/pdf', upsert: true }); if (eUp) throw eUp;
+        // Caminho novo a cada contrato (id único): upload simples, sem upsert (a policy do bucket só permite INSERT).
+        const { error: eUp } = await cliente.storage.from('contratos').upload(caminho, Buffer.from(pdf), { contentType: 'application/pdf', upsert: false });
+        if (eUp) { await cliente.from('contratos').delete().eq('id', criado.id); throw eUp; } // não deixa rascunho órfão sem PDF
         const { data: atualizado, error: eA } = await cliente.from('contratos').update({ pdf_caminho: caminho }).eq('id', criado.id).select().single(); if (eA) throw eA;
         await rpc('registrar_acesso_prontuario', { p_paciente: pid, p_acao: 'gerou_contrato', p_detalhe: titulo, p_ip: await ipDoPedido() });
         dados = atualizado; break;
@@ -199,7 +203,14 @@ export async function executarClinica(operacao: string, entrada: unknown): Promi
         if (c.status === 'assinado' || c.status === 'cancelado') throw { code: '23514' };
         const token = randomBytes(24).toString('base64url');
         const expira = new Date(Date.now() + 48 * 3600 * 1000).toISOString();
-        const base = (process.env.APP_URL ?? '').replace(/\/$/, '');
+        // Link absoluto sempre: APP_URL; sem ela, o host do próprio pedido. Nunca um caminho relativo para o paciente.
+        let base = (process.env.APP_URL ?? '').trim().replace(/\/$/, '');
+        if (!/^https?:\/\//.test(base)) {
+          const h = await headers();
+          const host = h.get('x-forwarded-host') ?? h.get('host');
+          if (!host) throw new Error('APP_URL ausente');
+          base = `${h.get('x-forwarded-proto') ?? (host.startsWith('localhost') ? 'http' : 'https')}://${host}`;
+        }
         const envelope = await provedorAssinatura().criarEnvelope({ contratoId: cid, titulo: c.titulo, pdf: new Uint8Array(), signatario: { nome: '' }, linkBase: base, token });
         const { data: at, error: e2 } = await cliente.from('contratos').update({ status: 'enviado', token, token_expira_em: expira, provedor: provedorAssinatura().nome, provedor_referencia: envelope.referencia }).eq('id', cid).select().single(); if (e2) throw e2;
         dados = { ...at, token: undefined, link: envelope.link }; break;

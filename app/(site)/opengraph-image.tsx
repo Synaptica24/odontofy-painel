@@ -19,7 +19,7 @@ export default function ImagemOpenGraph() {
           padding: 72,
           background: "#F4F1EA",
           color: "#1F1E1B",
-          fontFamily: "Georgia, 'Times New Roman', serif",
+          fontFamily: "Helvetica, Arial, sans-serif",
         }}
       >
         <div style={{ display: "flex", alignItems: "center", gap: 16, fontSize: 22, letterSpacing: 4, textTransform: "uppercase", color: "#7A776F", fontFamily: "Arial, sans-serif" }}>
@@ -27,9 +27,9 @@ export default function ImagemOpenGraph() {
           Dentista em {site.cidade}
         </div>
         <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
-          <div style={{ display: "flex", flexWrap: "wrap", fontSize: 88, lineHeight: 1.02, letterSpacing: -1 }}>
+          <div style={{ display: "flex", flexWrap: "wrap", fontSize: 84, lineHeight: 1.04, letterSpacing: -3, fontWeight: 700 }}>
             <span>Um dentista que</span>
-            <span style={{ color: "#B5502A", fontStyle: "italic", marginLeft: 20, marginRight: 20 }}>explica</span>
+            <span style={{ color: "#B5502A", marginLeft: 20, marginRight: 20 }}>explica</span>
             <span>antes de fazer.</span>
           </div>
           <div style={{ fontSize: 30, color: "#4A4844", fontFamily: "Arial, sans-serif" }}>

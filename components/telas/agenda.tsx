@@ -82,12 +82,24 @@ export function TelaAgenda() {
 
   const inicio = visao === "semana" ? inicioDaSemana(data) : data;
   const dias = visao === "semana" ? 7 : 1;
-  // Sem profissional escolhido, a primeira carga vem sem filtro; depois o primeiro da lista vira o ativo.
-  const r = useApi(() => agendaFiltrada(inicio, dias as 1 | 7, profissionalId ? { profissional_id: profissionalId } : {}), [inicio, dias, profissionalId]);
-  const d = r.dados;
-  const profissionais: Profissional[] = useMemo(() => d?.profissionais ?? [], [d]);
+  // A lista de profissionais vem junto com a agenda. Antes dela chegar, a carga vai sem filtro;
+  // assim que chega, o primeiro vira o ativo e a agenda recarrega filtrada (o seletor e a grade sempre batem).
+  const [profissionaisConhecidos, setProfissionaisConhecidos] = useState<Profissional[]>([]);
+  const profissionalAtivo = profissionalId || profissionaisConhecidos[0]?.id || "";
+  const r = useApi(() => agendaFiltrada(inicio, dias as 1 | 7, profissionalAtivo ? { profissional_id: profissionalAtivo } : {}), [inicio, dias, profissionalAtivo]);
+  const bruto = r.dados;
+  const profissionais: Profissional[] = useMemo(() => bruto?.profissionais ?? profissionaisConhecidos, [bruto, profissionaisConhecidos]);
+  if (bruto?.profissionais && bruto.profissionais.length !== profissionaisConhecidos.length) setProfissionaisConhecidos(bruto.profissionais);
+  // Enquanto a recarga filtrada não chega, esconde o que for de outro profissional.
+  const d = useMemo(() => {
+    if (!bruto || !profissionalAtivo) return bruto;
+    return {
+      ...bruto,
+      agendamentos: bruto.agendamentos.filter((a) => !a.profissional_id || a.profissional_id === profissionalAtivo),
+      bloqueios: bruto.bloqueios.filter((b) => !b.profissional_id || b.profissional_id === profissionalAtivo),
+    };
+  }, [bruto, profissionalAtivo]);
   const convenios: Convenio[] = d?.convenios ?? [];
-  const profissionalAtivo = profissionalId || profissionais[0]?.id || "";
 
   const colunas = useMemo(() => Array.from({ length: visao === "semana" ? 6 : 1 }, (_, i) => somarDias(inicio, i)), [inicio, visao]);
   const horas = useMemo(() => Array.from({ length: HORA_FIM - HORA_INICIO + 1 }, (_, i) => HORA_INICIO + i), []);
@@ -117,8 +129,8 @@ export function TelaAgenda() {
 
   /* ---- ações sobre o agendamento (otimistas) ---- */
   async function agir(a: AgendamentoComPaciente, acao: "confirmar" | "falta" | "cancelar" | "concluir" | "remarcar", novoInicio?: string) {
-    if (!d) return;
-    const antes = d;
+    if (!bruto) return;
+    const antes = bruto; // desfaz sobre os dados completos, não sobre a visão filtrada
     const proximo = { confirmar: "confirmado", falta: "faltou", cancelar: "cancelado", concluir: "concluido", remarcar: a.status }[acao] as AgendamentoComPaciente["status"];
     r.definir((x) => ({ ...x, agendamentos: x.agendamentos.map((i) => (i.id === a.id ? { ...i, status: proximo, ...(novoInicio ? { inicio: novoInicio, fim: new Date(Date.parse(novoInicio) + (Date.parse(a.fim) - Date.parse(a.inicio))).toISOString() } : {}) } : i)) }));
     setAberto(null);

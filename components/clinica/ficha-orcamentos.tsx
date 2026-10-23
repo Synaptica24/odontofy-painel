@@ -11,6 +11,15 @@ import { Chip, Folha, STATUS_ORCAMENTO, dataCivilBonita, dataHoraBonita } from "
 
 export type VariaveisContrato = { tratamento: string; valor: string; parcelas?: string };
 
+type ItemEdicao = OrcamentoItem & { valorTexto: string; qtdTexto: string };
+/** "1.234,56" → 1234.56 · "12,5" → 12.5 · "12.50" → 12.5 */
+function paraNumero(t: string) {
+  const s = t.includes(",") ? t.replace(/\./g, "").replace(",", ".") : t;
+  const n = Number(s);
+  return Number.isFinite(n) && n >= 0 ? n : 0;
+}
+const itemVazio = (): ItemEdicao => ({ descricao: "", dente: null, quantidade: 1, valor_unitario: 0, valorTexto: "", qtdTexto: "1" });
+const paraEdicao = (i: OrcamentoItem): ItemEdicao => ({ ...i, valorTexto: i.valor_unitario ? String(i.valor_unitario).replace(".", ",") : "", qtdTexto: String(i.quantidade) });
 const total = (itens: OrcamentoItem[], desconto: number) => itens.reduce((s, i) => s + i.quantidade * i.valor_unitario, 0) - desconto;
 
 /* Orçamentos / plano de tratamento: lista + folha de edição + decisão (aprovado, recusado). */
@@ -79,16 +88,27 @@ export function FichaOrcamentos({ d, definir, aoGerarContrato }: { d: Prontuario
 
 function FolhaOrcamento({ inicial, aoFechar, aoSalvar, aoExcluir }: { inicial: Partial<Orcamento>; aoFechar: () => void; aoSalvar: (o: Orcamento) => void; aoExcluir?: () => void }) {
   const [titulo, setTitulo] = useState(inicial.titulo ?? "Plano de tratamento");
-  const [itens, setItens] = useState<OrcamentoItem[]>(inicial.itens?.length ? inicial.itens.map((i) => ({ ...i })) : [{ descricao: "", dente: null, quantidade: 1, valor_unitario: 0 }]);
+  // valorTexto/qtdTexto guardam o que a pessoa digitou ("12,5", ""), o número fica em valor_unitario/quantidade.
+  const [itens, setItens] = useState<ItemEdicao[]>(inicial.itens?.length ? inicial.itens.map(paraEdicao) : [itemVazio()]);
   const [desconto, setDesconto] = useState(String(inicial.desconto ?? 0));
   const [validade, setValidade] = useState(inicial.validade ?? "");
   const [observacao, setObservacao] = useState(inicial.observacao ?? "");
   const [salvando, setSalvando] = useState(false);
   const soma = total(itens, Number(desconto.replace(",", ".")) || 0);
-  const mudar = (i: number, campo: keyof OrcamentoItem, v: string) => setItens((x) => x.map((it, k) => (k === i ? { ...it, [campo]: campo === "descricao" ? v : campo === "dente" ? (v ? Number(v) : null) : Number(v.replace(",", ".")) || 0 } : it)));
+  const mudar = (i: number, campo: "descricao" | "dente" | "quantidade" | "valor_unitario", v: string) =>
+    setItens((x) => x.map((it, k) => {
+      if (k !== i) return it;
+      if (campo === "descricao") return { ...it, descricao: v };
+      if (campo === "dente") { const d = v.replace(/\D/g, "").slice(0, 2); return { ...it, dente: d ? Number(d) : null }; }
+      if (campo === "quantidade") { const q = v.replace(/\D/g, "").slice(0, 3); return { ...it, qtdTexto: q, quantidade: Math.max(1, Number(q) || 1) }; }
+      const t = v.replace(/[^\d,.]/g, "");
+      return { ...it, valorTexto: t, valor_unitario: paraNumero(t) };
+    }));
 
   async function salvar() {
-    const limpos = itens.filter((i) => i.descricao.trim());
+    const limpos: OrcamentoItem[] = itens
+      .filter((i) => i.descricao.trim())
+      .map(({ descricao, dente, quantidade, valor_unitario }) => ({ descricao: descricao.trim(), dente, quantidade, valor_unitario }));
     if (!limpos.length) { toast.error("Adicione pelo menos um item."); return; }
     setSalvando(true);
     const res = await salvarOrcamento({ id: inicial.id, paciente_id: inicial.paciente_id!, titulo: titulo.trim() || "Plano de tratamento", desconto: Number(desconto.replace(",", ".")) || 0, observacao, validade: validade || null, itens: limpos });
@@ -110,12 +130,12 @@ function FolhaOrcamento({ inicial, aoFechar, aoSalvar, aoExcluir }: { inicial: P
               <tr key={i}>
                 <td><input className="a-entrada a-entrada--mini" value={it.descricao} onChange={(e) => mudar(i, "descricao", e.target.value)} placeholder="Procedimento" /></td>
                 <td><input className="a-entrada a-entrada--mini num" inputMode="numeric" value={it.dente ?? ""} onChange={(e) => mudar(i, "dente", e.target.value)} placeholder="—" /></td>
-                <td><input className="a-entrada a-entrada--mini num" inputMode="numeric" value={it.quantidade} onChange={(e) => mudar(i, "quantidade", e.target.value)} /></td>
-                <td><input className="a-entrada a-entrada--mini num" inputMode="decimal" value={it.valor_unitario} onChange={(e) => mudar(i, "valor_unitario", e.target.value)} /></td>
+                <td><input className="a-entrada a-entrada--mini num" inputMode="numeric" value={it.qtdTexto} onChange={(e) => mudar(i, "quantidade", e.target.value)} /></td>
+                <td><input className="a-entrada a-entrada--mini num" inputMode="decimal" value={it.valorTexto} placeholder="0,00" onChange={(e) => mudar(i, "valor_unitario", e.target.value)} /></td>
                 <td><button type="button" className="folha__fechar" style={{ width: "2.25rem", height: "2.25rem" }} aria-label="Remover item" onClick={() => setItens((x) => x.filter((_, k) => k !== i))}><Trash2 size={14} /></button></td>
               </tr>
             ))}
-            <tr><td colSpan={5}><Botao onClick={() => setItens((x) => [...x, { descricao: "", dente: null, quantidade: 1, valor_unitario: 0 }])}><Plus size={14} /> Item</Botao></td></tr>
+            <tr><td colSpan={5}><Botao onClick={() => setItens((x) => [...x, itemVazio()])}><Plus size={14} /> Item</Botao></td></tr>
             <tr className="tabela__total"><td colSpan={3}>Total {Number(desconto) > 0 ? `(desconto ${reais(Number(desconto.replace(",", ".")) || 0)})` : ""}</td><td className="num" colSpan={2}>{reais(soma)}</td></tr>
           </tbody>
         </table>
