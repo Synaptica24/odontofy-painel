@@ -89,8 +89,8 @@ export function tamanhoBonito(bytes: number) {
   if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(0)} KB`;
   return `${(bytes / 1024 / 1024).toFixed(1)} MB`;
 }
-export function linkWhatsApp(telefoneE164: string, texto?: string) {
-  const n = telefoneE164.replace(/\D/g, "");
+export function linkWhatsApp(telefoneE164: string | null | undefined, texto?: string) {
+  const n = (telefoneE164 ?? "").replace(/\D/g, "");
   return `https://wa.me/${n}${texto ? `?text=${encodeURIComponent(texto)}` : ""}`;
 }
 export function hojeCivilLocal(desloc = 0) {

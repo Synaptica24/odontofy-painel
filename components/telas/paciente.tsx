@@ -6,7 +6,7 @@ import { ArrowLeft, MessageCircle, Pencil } from "lucide-react";
 import { prontuario } from "@/lib/api";
 import type { Prontuario } from "@/lib/contratos";
 import { useApi } from "@/components/dados/use-api";
-import { telefoneBonito } from "@/components/dados/datas";
+import { telefoneBonito, telefoneExibicao } from "@/components/dados/datas";
 import { Botao, Cabecalho, Erro, OssoLinha, Pagina } from "@/components/ui/primitivos";
 import { Chip, ChipCor, cpfBonito, idade, linkWhatsApp } from "@/components/clinica/ficha-util";
 import { FichaDados } from "@/components/clinica/ficha-dados";
@@ -75,16 +75,17 @@ export function TelaPaciente({ id }: { id: string }) {
           titulo={d.paciente.nome}
           sobre={
             <>
-              <a className="num underline-offset-2 hover:underline" href={`tel:${d.paciente.telefone_e164}`}>{telefoneBonito(d.paciente.telefone_e164)}</a>
+              {telefoneExibicao(d.paciente) ? <a className="num underline-offset-2 hover:underline" href={`tel:${telefoneExibicao(d.paciente)}`}>{telefoneBonito(telefoneExibicao(d.paciente))}{!d.paciente.telefone_e164 && d.paciente.telefone_contato ? " (contato da família)" : ""}</a> : <span className="text-tinta-3">sem telefone</span>}
+              {d.paciente.codental_numero && <span className="num"> · nº {d.paciente.codental_numero}</span>}
               {anos !== null && ` · ${anos} anos`}
               {d.paciente.cpf && ` · CPF ${cpfBonito(d.paciente.cpf)}`}
             </>
           }
           acao={
             <div className="ficha__acoes">
-              <a className="a-botao pressa inline-flex items-center gap-1.5" target="_blank" rel="noopener" href={linkWhatsApp(d.paciente.telefone_e164)} aria-label="Abrir conversa no WhatsApp">
+              {telefoneExibicao(d.paciente) && <a className="a-botao pressa inline-flex items-center gap-1.5" target="_blank" rel="noopener" href={linkWhatsApp(telefoneExibicao(d.paciente))} aria-label="Abrir conversa no WhatsApp">
                 <MessageCircle size={16} /> <span className="ficha__acao-texto">WhatsApp</span>
-              </a>
+              </a>}
               <Botao onClick={() => setEditando(true)}><Pencil size={16} /> <span className="ficha__acao-texto">Editar dados</span></Botao>
             </div>
           }

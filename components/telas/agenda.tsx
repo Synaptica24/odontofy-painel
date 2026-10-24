@@ -11,7 +11,7 @@ import {
 } from "@/lib/api";
 import type { AgendamentoComPaciente, Bloqueio, Config, Convenio, Paciente, Profissional } from "@/lib/contratos";
 import { useApi } from "@/components/dados/use-api";
-import { civilParaData, diaLongo, diaNumero, diaSemanaCurto, hojeCivil, hora, inicioDaSemana, mesPorExtenso, reais, somarDias, telefoneBonito } from "@/components/dados/datas";
+import { civilParaData, diaLongo, diaNumero, diaSemanaCurto, hojeCivil, hora, inicioDaSemana, mesPorExtenso, reais, somarDias, telefoneBonito, telefoneExibicao, linkWa } from "@/components/dados/datas";
 import { Botao, Campo, Entrada, Erro, Pagina, AreaTexto, Abas } from "@/components/ui/primitivos";
 import { Folha } from "@/components/clinica/folha";
 import { BuscaPaciente } from "@/components/clinica/busca-paciente";
@@ -141,7 +141,9 @@ export function TelaAgenda() {
     void r.recarregar();
   }
   async function enviarConfirmacao(a: AgendamentoComPaciente) {
-    window.open(`https://wa.me/${a.paciente.telefone_e164.replace(/\D/g, "")}?text=${encodeURIComponent(mensagemConfirmacao(a))}`, "_blank", "noopener");
+    const wa = linkWa(telefoneExibicao(a.paciente), mensagemConfirmacao(a));
+    if (!wa) { toast.error("Paciente sem telefone cadastrado."); return; }
+    window.open(wa, "_blank", "noopener");
     const res = await marcarConfirmacaoEnviada(a.id);
     if (res.sucesso) { toast("Mensagem de confirmação aberta no WhatsApp", { description: "Quando o paciente responder, marque como confirmada." }); void r.recarregar(); }
   }
@@ -442,7 +444,7 @@ function DetalheConsulta({ a, convenios, aoFechar, agir, enviarConfirmacao, aoEd
       <dl className="ficha__resumo">
         <div><dt>Estado</dt><dd><span className={`chip ${CHIP_STATUS[a.status]}`}>{ROTULO_STATUS[a.status]}</span>{a.confirmacao_enviada_em && a.status === "agendado" ? <span className="ml-2 text-[12px] text-tinta-3">confirmação enviada {hora(a.confirmacao_enviada_em)}</span> : null}</dd></div>
         <div><dt>Tipo</dt><dd>{a.tipo}{a.paciente_novo ? " · paciente novo" : ""}</dd></div>
-        <div><dt>Telefone</dt><dd><a className="text-ia" href={`https://wa.me/${a.paciente.telefone_e164.replace(/\D/g, "")}`} target="_blank" rel="noopener">{telefoneBonito(a.paciente.telefone_e164)}</a></dd></div>
+        <div><dt>Telefone</dt><dd>{telefoneExibicao(a.paciente) ? <a className="text-ia" href={linkWa(telefoneExibicao(a.paciente)) ?? undefined} target="_blank" rel="noopener">{telefoneBonito(telefoneExibicao(a.paciente))}</a> : <span className="text-tinta-3">sem telefone</span>}</dd></div>
         <div><dt>Convênio</dt><dd>{a.convenio ? <span className="chip chip--cor" style={{ background: a.convenio.cor }}>{a.convenio.nome}</span> : "Particular"}</dd></div>
         <div><dt>Valor previsto</dt><dd className="num">{a.valor ? reais(a.valor) : "—"}</dd></div>
         <div><dt>Marcado por</dt><dd>{a.origem === "agente" ? "IA no WhatsApp" : "painel"}{a.profissional ? ` · ${a.profissional.nome}` : ""}</dd></div>

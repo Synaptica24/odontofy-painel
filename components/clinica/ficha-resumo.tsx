@@ -5,10 +5,41 @@ import Link from "next/link";
 import { toast } from "sonner";
 import { atualizarRetorno, criarRetorno } from "@/lib/api";
 import type { Prontuario, Retorno } from "@/lib/contratos";
-import { diaCurto, hojeCivil, hora, reais } from "@/components/dados/datas";
+import { diaCurto, hojeCivil, hora, reais, telefoneExibicao } from "@/components/dados/datas";
 import { Bloco, Botao, Campo, Entrada, Item, Linha, Lista, Vazio } from "@/components/ui/primitivos";
 import { alertasAnamnese } from "./ficha-anamnese";
-import { Chip, STATUS_AGENDAMENTO, STATUS_ORCAMENTO, STATUS_RETORNO, dataCivilBonita, dataHoraBonita, hojeCivilLocal, linkWhatsApp } from "./ficha-util";
+import { Chip, STATUS_AGENDAMENTO, STATUS_ORCAMENTO, STATUS_RETORNO, cpfBonito, dataCivilBonita, dataHoraBonita, hojeCivilLocal, linkWhatsApp } from "./ficha-util";
+import { telefoneBonito } from "@/components/dados/datas";
+
+const SEXO: Record<string, string> = { masculino: "Masculino", feminino: "Feminino", outro: "Outro" };
+/** Cadastro completo (o que o Codental mostra em "Informações"): só o que está preenchido aparece. */
+function DadosCadastrais({ p }: { p: Prontuario["paciente"] }) {
+  const linhas: [string, string | null | undefined][] = [
+    ["Código", p.codental_numero ? `${p.codental_numero}${p.codental_id ? ` (Codental ${p.codental_id})` : ""}` : null],
+    ["Nascimento", dataCivilBonita(p.nascimento) || null],
+    ["Sexo", p.sexo ? SEXO[p.sexo] : null],
+    ["CPF", p.cpf ? cpfBonito(p.cpf) : null],
+    ["RG", p.rg],
+    ["Profissão", p.profissao],
+    ["E-mail", p.email],
+    ["Celular", p.telefone_e164 ? telefoneBonito(p.telefone_e164) : p.telefone_contato ? `${telefoneBonito(p.telefone_contato)} (compartilhado)` : null],
+    ["Telefone fixo", p.telefone_fixo],
+    ["Endereço", p.endereco],
+    ["Responsável", p.responsavel_nome ? `${p.responsavel_nome}${p.responsavel_documento ? ` · ${p.responsavel_documento}` : ""}${p.responsavel_nascimento ? ` · ${dataCivilBonita(p.responsavel_nascimento)}` : ""}` : null],
+    ["Emergência", p.emergencia_nome ? `${p.emergencia_nome}${p.emergencia_telefone ? ` · ${p.emergencia_telefone}` : ""}` : null],
+    ["Convênio", p.convenio ? `${p.convenio.nome}${p.numero_carteirinha ? ` · carteirinha ${p.numero_carteirinha}` : ""}${p.convenio_titular ? ` · titular ${p.convenio_titular}` : ""}` : "Particular"],
+    ["Como conheceu", p.como_conheceu],
+    ["Observações", p.observacoes],
+  ];
+  const cheias = linhas.filter(([, v]) => v);
+  return (
+    <dl className="dados-cadastrais">
+      {cheias.map(([k, v]) => (
+        <div key={k}><dt>{k}</dt><dd className={/CPF|RG|Celular|Telefone|Código|Nascimento/.test(k) ? "num" : undefined}>{v}</dd></div>
+      ))}
+    </dl>
+  );
+}
 
 type Aba = "anamnese" | "evolucao" | "orcamentos" | "consultas";
 
@@ -110,7 +141,7 @@ export function FichaResumo({ d, definir, irPara }: { d: Prontuario; definir: (f
                       acoesEmbaixo
                       lado={
                         <div className="flex gap-1 flex-wrap justify-end">
-                          <a className="a-botao a-botao--cheio pressa inline-flex items-center" target="_blank" rel="noopener" href={linkWhatsApp(d.paciente.telefone_e164, `Olá, ${d.paciente.nome.split(" ")[0]}! Aqui é do consultório do Dr. Mateus. Está na hora do seu retorno (${r.motivo.toLowerCase()}). Quer que eu veja um horário para você?`)}
+                          <a className="a-botao a-botao--cheio pressa inline-flex items-center" target="_blank" rel="noopener" href={linkWhatsApp(telefoneExibicao(d.paciente), `Olá, ${d.paciente.nome.split(" ")[0]}! Aqui é do consultório do Dr. Mateus. Está na hora do seu retorno (${r.motivo.toLowerCase()}). Quer que eu veja um horário para você?`)}
                             onClick={() => { if (r.status === "pendente") void mudarRetorno(r, "contatado"); }}>
                             Chamar no WhatsApp
                           </a>
@@ -123,6 +154,10 @@ export function FichaResumo({ d, definir, irPara }: { d: Prontuario; definir: (f
               })}
             </Lista>
           )}
+        </Bloco>
+
+        <Bloco titulo="Informações" id="informacoes">
+          <DadosCadastrais p={d.paciente} />
         </Bloco>
 
         <Bloco titulo="Orçamentos pendentes" id="orc-pendentes" lado={<button type="button" className="underline" onClick={() => irPara("orcamentos")}>ver todos</button>}>

@@ -7,7 +7,7 @@ import { MessageCircle } from "lucide-react";
 import { atualizarRetorno, confirmarSugestao, decidirOrcamento, financeiroResumo, marcarConfirmacaoEnviada } from "@/lib/api";
 import type { FinanceiroResumo, Retorno } from "@/lib/contratos";
 import { useApi } from "@/components/dados/use-api";
-import { diaCurto, diaLongo, hojeCivil, hora, inicioDaSemana, reais, somarDias, telefoneBonito } from "@/components/dados/datas";
+import { diaCurto, diaLongo, hojeCivil, hora, inicioDaSemana, reais, somarDias, telefoneBonito, telefoneExibicao, linkWa } from "@/components/dados/datas";
 import { Abas, Bloco, Botao, Cabecalho, Erro, Item, Linha, Lista, OssoLinha, Pagina, Vazio } from "@/components/ui/primitivos";
 
 /* Financeiro: faturamento previsto e realizado, orçamentos por estado, confirmações da semana,
@@ -49,7 +49,9 @@ export function TelaFinanceiro() {
   }
   async function pedirConfirmacao(c: FinanceiroResumo["confirmacoes"][number]) {
     const msg = `Olá, ${c.paciente.nome.split(" ")[0]}! Passando para confirmar sua consulta (${c.tipo}) ${diaLongo(c.inicio.slice(0, 10)).toLowerCase()} às ${hora(c.inicio)} com o Dr. Mateus Peixoto. Pode confirmar respondendo SIM?`;
-    window.open(`https://wa.me/${c.paciente.telefone_e164.replace(/\D/g, "")}?text=${encodeURIComponent(msg)}`, "_blank", "noopener");
+    const wa = linkWa(telefoneExibicao(c.paciente), msg);
+    if (!wa) return;
+    window.open(wa, "_blank", "noopener");
     await marcarConfirmacaoEnviada(c.id); void r.recarregar();
   }
   async function confirmar(id: string) {
@@ -59,7 +61,9 @@ export function TelaFinanceiro() {
   }
   async function chamarRetorno(ret: Retorno) {
     if (!ret.paciente) return;
-    window.open(`https://wa.me/${ret.paciente.telefone_e164.replace(/\D/g, "")}?text=${encodeURIComponent(textoRetorno(ret))}`, "_blank", "noopener");
+    const wa = linkWa(telefoneExibicao(ret.paciente), textoRetorno(ret));
+    if (!wa) return;
+    window.open(wa, "_blank", "noopener");
     await atualizarRetorno(ret.id, "contatado"); void r.recarregar();
   }
   async function mudarRetorno(ret: Retorno, status: Retorno["status"]) {
@@ -146,8 +150,8 @@ export function TelaFinanceiro() {
           <Lista>
             {d.faltas_lista.map((f) => (
               <Item key={f.id}>
-                <Linha marca="falta" href={`/pacientes/${f.paciente.id}`} titulo={f.paciente.nome} sub={<>{diaCurto(f.inicio)} às {hora(f.inicio)} · {f.tipo} · {telefoneBonito(f.paciente.telefone_e164)}</>}
-                  lado={<a className="a-botao pressa inline-flex items-center gap-1.5" href={`https://wa.me/${f.paciente.telefone_e164.replace(/\D/g, "")}?text=${encodeURIComponent(textoFalta(f.paciente.nome, f.tipo))}`} target="_blank" rel="noopener" onClick={(e) => e.stopPropagation()}><MessageCircle size={16} aria-hidden /> Remarcar</a>} />
+                <Linha marca="falta" href={`/pacientes/${f.paciente.id}`} titulo={f.paciente.nome} sub={<>{diaCurto(f.inicio)} às {hora(f.inicio)} · {f.tipo} · {telefoneBonito(telefoneExibicao(f.paciente))}</>}
+                  lado={linkWa(telefoneExibicao(f.paciente), textoFalta(f.paciente.nome, f.tipo)) ? <a className="a-botao pressa inline-flex items-center gap-1.5" href={linkWa(telefoneExibicao(f.paciente), textoFalta(f.paciente.nome, f.tipo)) ?? undefined} target="_blank" rel="noopener" onClick={(e) => e.stopPropagation()}><MessageCircle size={16} aria-hidden /> Remarcar</a> : undefined} />
               </Item>
             ))}
           </Lista>

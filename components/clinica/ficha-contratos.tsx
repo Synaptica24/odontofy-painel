@@ -1,5 +1,6 @@
 "use client";
 
+import { telefoneExibicao } from "@/components/dados/datas";
 import { useState } from "react";
 import { toast } from "sonner";
 import { Copy, Plus } from "lucide-react";
@@ -78,7 +79,7 @@ export function FichaContratos({ d, definir, variaveisIniciais, aoConsumirVariav
               <Botao onClick={() => { void navigator.clipboard.writeText(link.link); toast.success("Link copiado."); }} aria-label="Copiar link"><Copy size={16} /></Botao>
             </div>
             <a className="a-botao a-botao--cheio a-botao--grande pressa inline-flex items-center justify-center" target="_blank" rel="noopener"
-              href={linkWhatsApp(d.paciente.telefone_e164, `Olá, ${d.paciente.nome.split(" ")[0]}! Segue o documento para você conferir e assinar pelo celular: ${link.link}`)}>
+              href={linkWhatsApp(telefoneExibicao(d.paciente), `Olá, ${d.paciente.nome.split(" ")[0]}! Segue o documento para você conferir e assinar pelo celular: ${link.link}`)}>
               Mandar pelo WhatsApp
             </a>
           </div>

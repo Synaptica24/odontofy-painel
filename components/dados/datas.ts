@@ -92,7 +92,17 @@ export function reais(v: number) {
 export function dolares(v: number) {
   return new Intl.NumberFormat("pt-BR", { style: "currency", currency: "USD" }).format(v);
 }
-export function telefoneBonito(e164: string) {
+export function telefoneBonito(e164: string | null | undefined) {
+  if (!e164) return "sem telefone";
   const m = e164.match(/^\+55(\d{2})(\d{4,5})(\d{4})$/);
   return m ? `(${m[1]}) ${m[2]}-${m[3]}` : e164;
+}
+/** Número para exibir/ligar: o WhatsApp principal ou, na falta dele, o contato compartilhado ou o fixo. */
+export function telefoneExibicao(p: { telefone_e164: string | null; telefone_contato?: string; telefone_fixo?: string }) {
+  return p.telefone_e164 || p.telefone_contato || p.telefone_fixo || null;
+}
+/** wa.me só funciona com dígitos; sem número devolve null para o botão sumir. */
+export function linkWa(e164: string | null | undefined, texto?: string) {
+  if (!e164) return null;
+  return `https://wa.me/${e164.replace(/\D/g, "")}${texto ? `?text=${encodeURIComponent(texto)}` : ""}`;
 }

@@ -1022,3 +1022,18 @@
   touch-action: none;
   display: block;
 }
+
+/* Informações do cadastro (ficha → Resumo), no espírito do cartão "Informações" do Codental */
+.dados-cadastrais {
+  display: grid;
+  gap: 10px;
+  font-size: var(--t-0);
+}
+.dados-cadastrais dt {
+  font-size: var(--t--1);
+  color: var(--tinta-3);
+}
+.dados-cadastrais dd {
+  color: var(--tinta);
+  overflow-wrap: anywhere;
+}
