@@ -30,6 +30,7 @@ function DadosCadastrais({ p }: { p: Prontuario["paciente"] }) {
     ["Convênio", p.convenio ? `${p.convenio.nome}${p.numero_carteirinha ? ` · carteirinha ${p.numero_carteirinha}` : ""}${p.convenio_titular ? ` · titular ${p.convenio_titular}` : ""}` : "Particular"],
     ["Como conheceu", p.como_conheceu],
     ["Observações", p.observacoes],
+    ["Bloco de notas (Codental)", p.notas_codental],
   ];
   const cheias = linhas.filter(([, v]) => v);
   return (

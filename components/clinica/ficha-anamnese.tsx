@@ -67,6 +67,34 @@ export function FichaAnamnese({ d, definir }: { d: Prontuario; definir: (fn: (x:
       <Bloco titulo="Observações da anamnese" id="anam-obs">
         <AreaTexto rows={3} value={f.observacoes} onChange={(e) => mudar("observacoes", e.target.value)} placeholder="Qualquer coisa relevante para o atendimento" />
       </Bloco>
+      {(d.anamneses_respostas ?? []).length > 0 && (
+        <Bloco titulo="Anamneses respondidas" id="anam-respostas" lado={`${d.anamneses_respostas!.length} importada${d.anamneses_respostas!.length === 1 ? "" : "s"} do Codental`}>
+          <div className="grid gap-2">
+            {d.anamneses_respostas!.map((a) => {
+              const preenchidas = a.respostas.filter((r) => r.resposta && r.resposta.trim());
+              return (
+                <details key={a.id} className="anam-resp">
+                  <summary>
+                    <span className="anam-resp__modelo">{a.modelo}</span>
+                    <span className="anam-resp__meta">
+                      {new Date(a.criado_em).toLocaleDateString("pt-BR", { timeZone: "America/Sao_Paulo" })}
+                      {" · "}{preenchidas.length} {preenchidas.length === 1 ? "resposta" : "respostas"}{a.assinada ? " · assinada" : ""}
+                    </span>
+                  </summary>
+                  <dl className="anam-resp__lista">
+                    {(preenchidas.length ? preenchidas : a.respostas).map((r, i) => (
+                      <div key={i}>
+                        <dt>{r.pergunta}</dt>
+                        <dd>{r.resposta || <span className="text-tinta-3">sem resposta</span>}</dd>
+                      </div>
+                    ))}
+                  </dl>
+                </details>
+              );
+            })}
+          </div>
+        </Bloco>
+      )}
     </>
   );
 }

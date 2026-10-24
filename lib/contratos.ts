@@ -30,7 +30,7 @@ export interface Paciente {
   cep?: string; complemento?: string; bairro?: string; cidade?: string; estado?: string;
   responsavel_nome?: string; responsavel_nascimento?: DataCivil | null; responsavel_documento?: string;
   emergencia_nome?: string; emergencia_telefone?: string; como_conheceu?: string;
-  convenio_titular?: string; convenio_titular_cpf?: string; codental_numero?: string;
+  convenio_titular?: string; convenio_titular_cpf?: string; codental_numero?: string; notas_codental?: string;
   ultimo_agendamento_codental?: DataHora | null; atualizado_em?: DataHora;
 }
 export interface Consultorio { id: Id; nome: string; demo: boolean; papel: string; ativo: boolean }
@@ -54,12 +54,25 @@ export interface Evolucao {
 export type CategoriaAnexo = 'raio_x' | 'foto' | 'documento' | 'exame' | 'outro';
 export interface Anexo {
   id: Id; paciente_id: Id; nome: string; tipo_mime: string; categoria: CategoriaAnexo; caminho: string; tamanho: number; descricao: string; criado_em: DataHora;
+  pasta?: string; codental_id?: number | null;
 }
+/* Importados do Codental (migração 202610240004) */
+export type StatusPagamento = 'pendente' | 'atrasado' | 'pago' | 'cancelado';
+export interface Pagamento {
+  id: Id; paciente_id: Id; orcamento_id: Id | null; descricao: string; valor: number; vencimento: DataCivil | null; status: StatusPagamento;
+  pago_em: DataHora | null; forma: string; recibo: boolean; codental_id: number | null; criado_em: DataHora;
+}
+export interface AnamneseResposta {
+  id: Id; paciente_id: Id; modelo: string; respostas: { pergunta: string; resposta: string; pelo_paciente?: boolean }[]; assinada: boolean;
+  codental_id: number | null; criado_em: DataHora; atualizado_em: DataHora;
+}
+export interface DocumentoEmitido { id: Id; paciente_id: Id; tipo: string; resumo: string; origem_url: string; criado_em: DataHora }
 export type StatusOrcamento = 'pendente' | 'aprovado' | 'recusado';
 export interface OrcamentoItem { id?: Id; descricao: string; dente: number | null; quantidade: number; valor_unitario: number; ordem?: number }
 export interface Orcamento {
   id: Id; paciente_id: Id; titulo: string; status: StatusOrcamento; desconto: number; observacao: string; validade: DataCivil | null;
   decidido_em: DataHora | null; criado_em: DataHora; itens: OrcamentoItem[]; total: number; paciente?: { id: Id; nome: string };
+  codental_id?: number | null; codental_numero?: string; valor_total?: number | null;
 }
 export type StatusRetorno = 'pendente' | 'contatado' | 'agendado' | 'descartado';
 export interface Retorno {
@@ -78,6 +91,7 @@ export interface AcessoProntuario { id: Id; paciente_id: Id; user_id: Id | null;
 export interface Prontuario {
   paciente: Paciente; anamnese: Anamnese | null; odontograma: ItemOdontograma[]; evolucoes: Evolucao[]; anexos: Anexo[];
   orcamentos: Orcamento[]; contratos: Contrato[]; agendamentos: (Agendamento & { profissional?: string | null })[]; retornos: Retorno[]; acessos: AcessoProntuario[];
+  anamneses_respostas?: AnamneseResposta[]; pagamentos?: Pagamento[]; documentos?: DocumentoEmitido[];
 }
 export interface FinanceiroResumo {
   periodo: { inicio: DataCivil; fim: DataCivil }; previsto: number; realizado: number; faltas: number; consultas: number;

@@ -18,16 +18,17 @@ import { FichaAnexos } from "@/components/clinica/ficha-anexos";
 import { FichaOrcamentos, type VariaveisContrato } from "@/components/clinica/ficha-orcamentos";
 import { FichaContratos } from "@/components/clinica/ficha-contratos";
 import { FichaConsultas } from "@/components/clinica/ficha-consultas";
+import { FichaPagamentos } from "@/components/clinica/ficha-pagamentos";
 import { FichaAcessos } from "@/components/clinica/ficha-acessos";
 
 /* Ficha do paciente = prontuário completo em abas. Uma chamada (prontuario) traz tudo; as abas
    editam em cima do mesmo objeto (definir) para a tela nunca pular. */
 
-type Aba = "resumo" | "anamnese" | "odontograma" | "evolucao" | "anexos" | "orcamentos" | "contratos" | "consultas" | "acessos";
+type Aba = "resumo" | "anamnese" | "odontograma" | "evolucao" | "anexos" | "orcamentos" | "pagamentos" | "contratos" | "consultas" | "acessos";
 const ABAS: { valor: Aba; rotulo: string }[] = [
   { valor: "resumo", rotulo: "Resumo" }, { valor: "anamnese", rotulo: "Anamnese" }, { valor: "odontograma", rotulo: "Odontograma" },
   { valor: "evolucao", rotulo: "Evolução" }, { valor: "anexos", rotulo: "Anexos" }, { valor: "orcamentos", rotulo: "Orçamentos" },
-  { valor: "contratos", rotulo: "Contratos" }, { valor: "consultas", rotulo: "Consultas" }, { valor: "acessos", rotulo: "Acessos" },
+  { valor: "pagamentos", rotulo: "Pagamentos" }, { valor: "contratos", rotulo: "Contratos" }, { valor: "consultas", rotulo: "Consultas" }, { valor: "acessos", rotulo: "Acessos" },
 ];
 const STATUS: Record<string, string> = { novo: "Contato novo", em_conversa: "Em conversa", agendado: "Agendado", paciente: "Paciente", fora_da_base: "Fora da base" };
 
@@ -58,6 +59,7 @@ export function TelaPaciente({ id }: { id: string }) {
       case "evolucao": return d.evolucoes.length || null;
       case "anexos": return d.anexos.length || null;
       case "orcamentos": return d.orcamentos.filter((o) => o.status === "pendente").length || null;
+      case "pagamentos": return (d.pagamentos ?? []).filter((p) => p.status === "pendente" || p.status === "atrasado").length || null;
       case "contratos": return d.contratos.filter((c) => c.status === "enviado").length || null;
       default: return null;
     }
@@ -127,6 +129,7 @@ export function TelaPaciente({ id }: { id: string }) {
           {aba === "evolucao" && <FichaEvolucao d={d} definir={r.definir} />}
           {aba === "anexos" && <FichaAnexos d={d} definir={r.definir} />}
           {aba === "orcamentos" && <FichaOrcamentos d={d} definir={r.definir} aoGerarContrato={(v) => { setVariaveisContrato(v); trocar("contratos"); }} />}
+          {aba === "pagamentos" && <FichaPagamentos d={d} />}
           {aba === "contratos" && <FichaContratos d={d} definir={r.definir} variaveisIniciais={variaveisContrato} aoConsumirVariaveis={() => setVariaveisContrato(null)} />}
           {aba === "consultas" && <FichaConsultas d={d} />}
           {aba === "acessos" && <FichaAcessos d={d} />}

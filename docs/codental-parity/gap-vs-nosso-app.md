@@ -8,6 +8,7 @@
 - [x] **Edição completa do cadastro** (mesmas seções do Codental: dados, emergência, endereço, responsável, convênio) no cadastro novo e em "Editar dados"; `salvar_paciente` grava tudo e aceita celular vazio quando há outro contato.
 - [x] **Busca da barra superior** acha por nome, e-mail, celular, telefone de contato (compartilhado), fixo, CPF e código Codental; quem bate exatamente no código/CPF/telefone aparece primeiro.
 - [x] **Visual no padrão Figars/Brio** (Emil Kowalski + blocos do Bencho): base neutra, acento azul-petróleo, botão primário em tinta, cartões de 14px com sombra em duas camadas, barra de vidro, abas segmentadas, pilha "Pede atenção", números que rolam e ilha do próximo paciente na Hoje. Fluxo lista → ficha → abas Buscar/Aniversariantes/Retornos inalterado.
+- [x] **Prontuário e agenda migrados do Codental** (2026-10-24): consultas 2024–2027 e compromissos (bloqueios), evoluções, tratamentos (odontograma), orçamentos com itens, pagamentos (aba nova na ficha), anamneses respondidas por modelo (bloco na aba Anamnese), receitas/atestados (registro) e arquivos (Storage). Como: extrator que roda na aba logada do Codental (só GET) → coletor local → `data/codental/` → `import-codental-prontuario.mjs`. Nada foi alterado no Codental.
 - [x] Já existia e segue valendo: ficha com anamnese, odontograma por face, evolução só-acréscimo, anexos, orçamentos, contratos por modelo com assinatura no celular, agenda semanal por profissional, financeiro básico, conversas com IA.
 
 ## Backlog (ordem sugerida)
@@ -17,6 +18,5 @@
 5. **Modelos de anamnese** configuráveis + link para o paciente preencher no celular.
 6. **Evolução**: anexar imagem, assinar digitalmente (reaproveitar a assinatura dos contratos).
 7. **Pagamentos** por paciente (parcelas, recebido/pendente) e **fluxo de caixa**; notas fiscais e boletos depois.
-8. **Migrar histórico clínico e agenda futura** do Codental (depende de export completo ou leitura ficha a ficha).
 9. **Lembretes automáticos** por paciente (preferência WhatsApp/SMS/nenhum); já temos `nao_perturbe`, falta a preferência positiva.
 10. Pastas e comparação de imagens em Arquivos; categorização de pacientes; CRM/estoque/prótese só se o Dr. pedir.
