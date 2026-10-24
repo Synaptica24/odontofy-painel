@@ -73,3 +73,5 @@ Pedido do Gabriel: trazer consultas, evoluções/anamneses, orçamentos/pagament
 | Anamneses respondidas | — | 32 (bloco na aba Anamnese) |
 | Receitas e atestados | — | 261 registros (sem PDF) |
 | Arquivos | 736 (3,05 GB) | enviados ao bucket `prontuario` (ver relatório da importação) |
+
+**Dados locais apagados (2026-10-24):** depois de conferir 736/736 arquivos no Storage (3,05 GB, tamanhos iguais), a pasta `data/` inteira (CSV, JSONs e arquivos) foi removida do PC a pedido do Gabriel. Nenhum dado de paciente fica fora do Supabase.
