@@ -6,6 +6,7 @@
 @import "../styles/clinica.css";
 @import "../styles/ficha.css";
 @import "../styles/assinar.css";
+@import "../styles/fx.css";
 
 @theme inline {
   --color-fundo: var(--fundo);

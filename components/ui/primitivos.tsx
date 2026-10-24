@@ -1,5 +1,7 @@
+"use client";
+
 import Link from "next/link";
-import type { ComponentProps, ReactNode } from "react";
+import { useLayoutEffect, useRef, useState, type ComponentProps, type ReactNode } from "react";
 import { Check } from "lucide-react";
 
 /* Primitivos do mundo "Clínica clara" (classes com prefixo a-, herdado): cartões, linhas, pontos de estado, botões retos.
@@ -273,7 +275,7 @@ export function Interruptor({
   );
 }
 
-/** Filtro em abas (escaladas / ativas / todas). */
+/** Filtro em abas: controle segmentado (iOS/Brio), o indicador branco desliza até a opção ativa. */
 export function Abas<T extends string>({
   valor,
   opcoes,
@@ -283,16 +285,34 @@ export function Abas<T extends string>({
   opcoes: { valor: T; rotulo: ReactNode }[];
   aoMudar: (v: T) => void;
 }) {
+  const ref = useRef<HTMLDivElement>(null);
+  const [ind, setInd] = useState<{ x: number; w: number } | null>(null);
+  useLayoutEffect(() => {
+    const el = ref.current?.querySelector<HTMLButtonElement>(`[data-valor="${CSS.escape(valor)}"]`);
+    if (el) setInd({ x: el.offsetLeft, w: el.offsetWidth });
+  }, [valor, opcoes.length]);
   return (
-    <div className="a-abas" role="tablist">
+    <div
+      ref={ref}
+      className="a-abas"
+      role="tablist"
+      onKeyDown={(e) => {
+        const i = opcoes.findIndex((o) => o.valor === valor);
+        if (e.key === "ArrowRight") aoMudar(opcoes[(i + 1) % opcoes.length].valor);
+        if (e.key === "ArrowLeft") aoMudar(opcoes[(i - 1 + opcoes.length) % opcoes.length].valor);
+      }}
+    >
+      {ind && <span aria-hidden className="a-abas__indicador" style={{ width: ind.w, transform: `translateX(${ind.x - 3}px)` }} />}
       {opcoes.map((o) => (
         <button
           key={o.valor}
           type="button"
           role="tab"
           aria-selected={valor === o.valor}
+          tabIndex={valor === o.valor ? 0 : -1}
+          data-valor={o.valor}
           onClick={() => aoMudar(o.valor)}
-          className="a-aba pressa"
+          className="a-aba"
         >
           {o.rotulo}
         </button>

@@ -1,113 +1,135 @@
-/* Mundo "Clínica clara": o visual do Codental, que o Dr. Mateus já usa todo dia.
-   Inter, azul de ação (#1570EF), cinzas suaves, cartões brancos com borda de 1px e sombra curta.
+/* Mundo "Clínica clara", no padrão de design do Figars (Brio): base neutra, um acento azul-petróleo,
+   cartões brancos de 14px com sombra em duas camadas, botão primário em tinta, vidro fosco só nas barras.
    Estado é dito por um ponto colorido pequeno: azul é a IA, cinza-escuro é você, vermelho precisa de você,
-   verde está confirmado, amarelo espera confirmação.
+   verde está confirmado, amarelo espera confirmação. Fluxo e hierarquia continuam os do Codental.
    O prefixo de classe "a-" fica por herança. */
 
 /* a fonte vive na raiz para o body (e o sonner) já nascerem em Inter */
 :root {
-  --fonte-ui: var(--fonte-inter), Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --fonte-ui: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", var(--fonte-inter), Inter, system-ui, sans-serif;
 }
 
 [data-mundo="a"] {
   font-family: var(--fonte-ui);
-  --raio: 12px; /* cartões, formulários, balões */
-  --raio-campo: 8px; /* campos, botões, abas, chips */
+  /* raios no padrão do Figars/Brio: 10 controles, 14 cartões, 20 folhas, 999 pílulas */
+  --raio: 14px;
+  --raio-campo: 10px;
+  --raio-folha: 20px;
   --raio-pilula: 999px;
 
-  --fundo: #ffffff; /* cartão, barra, campo */
-  --fundo-app: #f9fafb; /* página */
-  --fundo-2: #f2f4f7; /* hover, trilho, pílula de data */
-  --hoje-fundo: #f5faff; /* coluna de hoje na semana */
-  --tinta: #101828;
-  --tinta-2: #475467;
-  --tinta-3: #667085;
-  --pauta: #eaecf0; /* divisores e borda de cartão */
-  --pauta-2: #d0d5dd; /* borda de campo e de botão */
-  --marcador: #1570ef; /* ação primária */
-  --marcador-2: #175cd3; /* hover da ação primária */
-  --ia: #175cd3;
-  --ia-vivo: #1570ef;
-  --ia-fundo: #eff8ff;
-  --ia-borda: #b2ddff;
-  --alerta: #d92d20;
-  --alerta-vivo: #f04438;
-  --alerta-fundo: #fef3f2;
-  --alerta-borda: #fecdca;
-  --sucesso: #067647;
-  --sucesso-vivo: #17b26a;
-  --sucesso-fundo: #ecfdf3;
-  --sucesso-borda: #abefc6;
-  --aviso: #b54708;
-  --aviso-vivo: #f79009;
-  --aviso-fundo: #fffaeb;
-  --aviso-borda: #fedf89;
-  --selecao: #d1e9ff;
-  --foco: #1570ef;
-  --anel-foco: 0 0 0 4px rgba(21, 112, 239, 0.16);
-  --sombra-xs: 0 1px 2px rgba(16, 24, 40, 0.05);
-  --sombra-sm: 0 1px 3px rgba(16, 24, 40, 0.1), 0 1px 2px rgba(16, 24, 40, 0.06);
-  --sombra-md: 0 4px 8px -2px rgba(16, 24, 40, 0.1), 0 2px 4px -2px rgba(16, 24, 40, 0.06);
-  --sombra-lg: 0 12px 16px -4px rgba(16, 24, 40, 0.1), 0 4px 6px -2px rgba(16, 24, 40, 0.05);
-  --barra: #ffffff;
+  /* base neutra e um único acento (azul-petróleo), como a paleta do Brio: cor só onde há ação ou estado */
+  --fundo: #ffffff; /* cartão, campo com foco */
+  --fundo-app: #f5f5f7; /* página */
+  --fundo-2: #fafafb; /* áreas secundárias, hover, campo em repouso */
+  --fundo-3: #f0f0f3; /* trilho do segmentado, botão fantasma em hover */
+  --hoje-fundo: #f3f7fa; /* coluna de hoje na semana */
+  --tinta: #17171a;
+  --tinta-2: #5b5b63;
+  --tinta-3: #6c6c74;
+  --pauta: #e7e7ea; /* divisores e borda de cartão */
+  --pauta-2: #d9d9de; /* borda de campo e de botão */
+  --acento: #2b6a8a;
+  --acento-tinta: #ffffff;
+  --acento-suave: #e8f1f6;
+  --marcador: var(--tinta); /* ação primária: tinta, como o botão primário do Brio */
+  --marcador-2: #2b2b30;
+  --ia: var(--acento);
+  --ia-vivo: var(--acento);
+  --ia-fundo: var(--acento-suave);
+  --ia-borda: #c5dbe7;
+  --alerta: #b8302a;
+  --alerta-vivo: #d0433c;
+  --alerta-fundo: #fceceb;
+  --alerta-borda: #f3c9c6;
+  --sucesso: #1a7a43;
+  --sucesso-vivo: #2a9a58;
+  --sucesso-fundo: #e7f5ec;
+  --sucesso-borda: #bfe3cc;
+  --aviso: #94600f;
+  --aviso-vivo: #c98a2a;
+  --aviso-fundo: #fbf2e2;
+  --aviso-borda: #efd9ad;
+  --selecao: var(--acento-suave);
+  --foco: var(--acento);
+  --anel-foco: 0 0 0 3px var(--acento-suave);
+  --sombra-xs: 0 1px 2px rgb(0 0 0 / 0.04), 0 1px 1px rgb(0 0 0 / 0.02);
+  --sombra-sm: 0 1px 2px rgb(0 0 0 / 0.04), 0 1px 1px rgb(0 0 0 / 0.02);
+  --sombra-md: 0 1px 2px rgb(0 0 0 / 0.04), 0 6px 20px rgb(0 0 0 / 0.05);
+  --sombra-lg: 0 2px 6px rgb(0 0 0 / 0.05), 0 24px 60px rgb(0 0 0 / 0.12);
+  --vidro: rgb(255 255 255 / 0.78);
+  --vidro-linha: rgb(0 0 0 / 0.06);
+  --escurecer: rgb(0 0 0 / 0.32);
+  --barra: var(--vidro);
 }
 
 :root[data-theme="dark"] [data-mundo="a"] {
-  --fundo: #161b26;
-  --fundo-app: #0c111d;
-  --fundo-2: #1f242f;
-  --hoje-fundo: #0f1f3d;
-  --tinta: #f5f5f6;
-  --tinta-2: #cecfd2;
-  --tinta-3: #94969c;
-  --pauta: #1f242f;
-  --pauta-2: #333741;
-  --marcador: #1570ef;
-  --marcador-2: #2e90fa;
-  --ia: #84caff;
-  --ia-vivo: #2e90fa;
-  --ia-fundo: #102a56;
-  --ia-borda: #1849a9;
-  --alerta: #f97066;
-  --alerta-vivo: #f04438;
-  --alerta-fundo: #55160c;
-  --alerta-borda: #7a271a;
-  --sucesso: #47cd89;
-  --sucesso-vivo: #17b26a;
-  --sucesso-fundo: #053321;
-  --sucesso-borda: #085d3a;
-  --aviso: #fdb022;
-  --aviso-vivo: #f79009;
-  --aviso-fundo: #4e1d09;
-  --aviso-borda: #7a2e0e;
-  --selecao: #1849a9;
-  --foco: #2e90fa;
-  --anel-foco: 0 0 0 4px rgba(46, 144, 250, 0.24);
-  --sombra-xs: 0 1px 2px rgba(0, 0, 0, 0.3);
-  --sombra-sm: 0 1px 3px rgba(0, 0, 0, 0.4), 0 1px 2px rgba(0, 0, 0, 0.3);
-  --sombra-md: 0 4px 8px -2px rgba(0, 0, 0, 0.5), 0 2px 4px -2px rgba(0, 0, 0, 0.4);
-  --sombra-lg: 0 12px 16px -4px rgba(0, 0, 0, 0.6), 0 4px 6px -2px rgba(0, 0, 0, 0.4);
-  --barra: #0c111d;
+  --fundo: #121214;
+  --fundo-app: #000000;
+  --fundo-2: #1a1a1d;
+  --fundo-3: #232327;
+  --hoje-fundo: #121a20;
+  --tinta: #f5f5f7;
+  --tinta-2: #a1a1aa;
+  --tinta-3: #8b8b94;
+  --pauta: #26262a;
+  --pauta-2: #333338;
+  --acento: #7fb6d4;
+  --acento-tinta: #0b1a22;
+  --acento-suave: #15242d;
+  --marcador: var(--tinta);
+  --marcador-2: #e2e2e6;
+  --ia-borda: #27404d;
+  --alerta: #ff6b61;
+  --alerta-vivo: #ff6b61;
+  --alerta-fundo: #2c1210;
+  --alerta-borda: #4a1f1c;
+  --sucesso: #3dd27a;
+  --sucesso-vivo: #3dd27a;
+  --sucesso-fundo: #0f2418;
+  --sucesso-borda: #1b3d28;
+  --aviso: #f2b84b;
+  --aviso-vivo: #f2b84b;
+  --aviso-fundo: #2a2010;
+  --aviso-borda: #463619;
+  --sombra-xs: 0 0 0 1px rgb(255 255 255 / 0.04);
+  --sombra-sm: 0 0 0 1px rgb(255 255 255 / 0.04);
+  --sombra-md: 0 0 0 1px rgb(255 255 255 / 0.06);
+  --sombra-lg: 0 0 0 1px rgb(255 255 255 / 0.08), 0 24px 60px rgb(0 0 0 / 0.6);
+  --vidro: rgb(18 18 20 / 0.84);
+  --vidro-linha: rgb(255 255 255 / 0.08);
+  --escurecer: rgb(0 0 0 / 0.6);
 }
 
 /* ── títulos: pesos moderados, sem enfeite ── */
 [data-mundo="a"] h1 {
-  font-size: var(--t-4);
-  font-weight: 600;
-  letter-spacing: -0.01em;
-  line-height: 1.2;
+  font-size: 1.75rem;
+  font-weight: 700;
+  letter-spacing: -0.025em;
+  line-height: 1.1;
   color: var(--tinta);
+}
+[data-mundo="a"] h2 {
+  letter-spacing: -0.012em;
+}
+/* legenda em caixa alta, pequena: rótulo de seção secundária (eyebrow) */
+.a-eyebrow {
+  font-size: 0.6875rem;
+  line-height: 1;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  font-weight: 600;
+  color: var(--tinta-3);
 }
 
 /* ── blocos: cartões brancos, como as caixas laterais do Codental ── */
 .a-bloco {
   position: relative;
   margin-top: var(--e-4);
-  padding: var(--e-4);
+  padding: var(--e-4) var(--e-5) var(--e-5);
   background: var(--fundo);
   border: 1px solid var(--pauta);
   border-radius: var(--raio);
-  box-shadow: var(--sombra-xs);
+  box-shadow: var(--sombra-md);
 }
 .a-bloco--primeiro {
   margin-top: var(--e-4);
@@ -123,8 +145,9 @@
   padding-bottom: var(--e-3);
   margin-bottom: var(--e-2);
   border-bottom: 1px solid var(--pauta);
-  font-size: var(--t-0);
+  font-size: 1.0625rem;
   font-weight: 600;
+  letter-spacing: -0.012em;
   color: var(--tinta);
 }
 .a-legenda .num {
@@ -239,16 +262,16 @@ svg.marca {
 /* ── botões: retos de 8px, 1px de borda, como "Entrar" e "Testar grátis" ── */
 .a-botao {
   min-height: 2.5rem;
-  padding: 0 0.875rem;
+  padding: 0 1rem;
   gap: 0.5rem;
   border-radius: var(--raio-campo);
-  border: 1px solid var(--pauta-2);
+  border: 1px solid var(--pauta);
   color: var(--tinta);
   font-size: var(--t-0);
-  font-weight: 600;
+  font-weight: 500;
   white-space: nowrap;
   background: var(--fundo);
-  box-shadow: var(--sombra-xs);
+  box-shadow: var(--sombra-sm);
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -256,7 +279,12 @@ svg.marca {
 .a-botao--cheio {
   background: var(--marcador);
   border-color: var(--marcador);
-  color: #ffffff;
+  color: var(--fundo);
+}
+.a-botao--acento {
+  background: var(--acento);
+  border-color: var(--acento);
+  color: var(--acento-tinta);
 }
 .a-botao--alerta {
   border-color: var(--alerta-borda);
@@ -278,6 +306,11 @@ svg.marca {
   .a-botao--cheio.pressa:hover {
     background-color: var(--marcador-2);
     border-color: var(--marcador-2);
+  }
+  .a-botao--acento.pressa:hover {
+    filter: brightness(1.06);
+    background-color: var(--acento);
+    border-color: var(--acento);
   }
   .a-botao--alerta.pressa:hover {
     background-color: var(--alerta-fundo);
@@ -376,17 +409,19 @@ svg.marca {
   min-height: 2.5rem;
   padding: 0.5rem 0.75rem;
   border-radius: var(--raio-campo);
-  border: 1px solid var(--pauta-2);
-  background: var(--fundo);
+  border: 1px solid var(--pauta);
+  background: var(--fundo-2);
   color: var(--tinta);
   font-weight: 400;
-  box-shadow: var(--sombra-xs);
+  box-shadow: none;
   transition:
-    border-color var(--rapido) ease,
-    box-shadow var(--rapido) ease;
+    border-color 150ms ease,
+    background-color 150ms ease,
+    box-shadow 150ms ease;
 }
 .a-entrada:focus {
-  border-color: var(--ia-vivo);
+  border-color: var(--acento);
+  background: var(--fundo);
   box-shadow: var(--anel-foco);
   outline: none;
 }
@@ -425,7 +460,7 @@ select.a-entrada {
   flex: none;
 }
 .a-interruptor--ligado {
-  background: var(--marcador);
+  background: var(--sucesso);
 }
 .a-interruptor__bola {
   position: absolute;
@@ -442,29 +477,55 @@ select.a-entrada {
   transform: translateX(1.25rem);
 }
 
-/* ── abas: a selecionada fica azul-claro, como "Agenda" na barra do Codental ── */
+/* ── abas: controle segmentado (iOS/Brio), o indicador branco desliza até a opção ativa ── */
 .a-abas {
+  position: relative;
   display: inline-flex;
-  gap: 4px;
+  gap: 0;
   max-width: 100%;
+  padding: 3px;
+  border-radius: 11px;
+  background: var(--fundo-3);
   overflow-x: auto;
   scrollbar-width: none;
 }
+.a-abas__indicador {
+  position: absolute;
+  top: 3px;
+  bottom: 3px;
+  left: 3px;
+  border-radius: 8px;
+  background: var(--fundo);
+  box-shadow: 0 1px 3px rgb(0 0 0 / 0.1), 0 1px 1px rgb(0 0 0 / 0.04);
+  /* largura varia por opção: exceção consciente, elemento pequeno */
+  transition:
+    transform 240ms var(--saida),
+    width 240ms var(--saida);
+  pointer-events: none;
+}
+:root[data-theme="dark"] .a-abas__indicador {
+  background: var(--fundo-2);
+}
 .a-aba {
-  min-height: 2.25rem;
-  padding: 0 0.75rem;
-  border-radius: var(--raio-campo);
-  font-size: var(--t-0);
-  font-weight: 600;
+  position: relative;
+  z-index: 1;
+  flex: 1;
+  min-height: 2rem;
+  padding: 0 0.875rem;
+  border-radius: 8px;
+  font-size: 0.84375rem;
+  font-weight: 500;
   color: var(--tinta-2);
   white-space: nowrap;
-  transition:
-    background-color var(--normal) ease,
-    color var(--normal) ease;
+  transition: color 150ms ease;
 }
 .a-aba[aria-selected="true"] {
-  background: var(--ia-fundo);
-  color: var(--ia);
+  color: var(--tinta);
+}
+@media (hover: hover) and (pointer: fine) {
+  .a-aba:hover {
+    color: var(--tinta);
+  }
 }
 .a-passos {
   display: inline-flex;
@@ -495,7 +556,7 @@ select.a-entrada {
   border-radius: var(--raio);
   border: 1px solid var(--pauta);
   background: var(--fundo);
-  box-shadow: var(--sombra-md);
+  box-shadow: var(--sombra-lg);
 }
 
 /* ── semana no celular ── */
@@ -713,8 +774,10 @@ select.a-entrada {
   align-items: center;
   gap: var(--e-2);
   padding: var(--e-2) var(--e-3);
-  background: var(--barra);
-  border-bottom: 1px solid var(--pauta);
+  background: var(--vidro);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  backdrop-filter: blur(20px) saturate(180%);
+  border-bottom: 1px solid var(--vidro-linha);
 }
 .a-thread__voltar {
   width: var(--toque);
@@ -792,8 +855,8 @@ select.a-entrada {
 }
 .a-balao--voce {
   align-self: flex-end;
-  background: var(--marcador);
-  color: #ffffff;
+  background: var(--acento);
+  color: var(--acento-tinta);
   border-bottom-right-radius: 4px;
 }
 .a-balao__autor {
@@ -836,8 +899,10 @@ select.a-entrada {
   position: sticky;
   bottom: var(--barra-inferior);
   padding: var(--e-2) var(--e-3) var(--e-3);
-  background: var(--barra);
-  border-top: 1px solid var(--pauta);
+  background: var(--vidro);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  backdrop-filter: blur(20px) saturate(180%);
+  border-top: 1px solid var(--vidro-linha);
   z-index: 10;
 }
 .a-thread__form {
@@ -856,8 +921,8 @@ select.a-entrada {
   width: 2.5rem;
   height: 2.5rem;
   border-radius: var(--raio-campo);
-  background: var(--marcador);
-  color: #ffffff;
+  background: var(--acento);
+  color: var(--acento-tinta);
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -868,7 +933,7 @@ select.a-entrada {
 }
 @media (hover: hover) and (pointer: fine) {
   .a-thread__enviar.pressa:hover {
-    background-color: var(--marcador-2);
+    filter: brightness(1.06);
   }
 }
 .a-thread__aviso {
@@ -891,9 +956,10 @@ select.a-entrada {
   bottom: 0;
   height: var(--barra-inferior);
   padding: 0 4px env(safe-area-inset-bottom, 0px);
-  background: var(--barra);
-  border-top: 1px solid var(--pauta);
-  box-shadow: 0 -1px 2px rgba(16, 24, 40, 0.04);
+  background: var(--vidro);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  backdrop-filter: blur(20px) saturate(180%);
+  border-top: 1px solid var(--vidro-linha);
   display: grid;
   grid-template-columns: repeat(5, 1fr);
   z-index: 20;
@@ -915,7 +981,6 @@ select.a-entrada {
   font-weight: 600;
 }
 .a-nav a[aria-current="page"] > span:first-child {
-  background: var(--ia-fundo);
   color: var(--ia);
 }
 .a-nav a > span:first-child {

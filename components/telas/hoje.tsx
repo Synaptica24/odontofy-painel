@@ -1,9 +1,13 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
+import { CalendarCheck, MessageCircle, RotateCcw, UserRoundCheck } from "lucide-react";
+import { IlhaProximo, quandoChega } from "@/components/fx/ilha-proximo";
+import { NumeroRolante } from "@/components/fx/numero-rolante";
+import { PilhaAtencao, type ItemAtencao } from "@/components/fx/pilha-atencao";
 import {
   agendaDaSemana,
   assumirConversa,
@@ -43,6 +47,8 @@ import {
   Teto,
   Vazio,
 } from "@/components/ui/primitivos";
+
+const primeiroNome = (nome: string) => nome.trim().split(/\s+/)[0] ?? nome;
 
 async function carregarExtras(civil: string) {
   const semana = inicioDaSemana(civil);
@@ -121,7 +127,57 @@ export function TelaHoje() {
 
   const d = r.dados;
   const x = extras.dados;
-  const temPendencia = (d?.escaladas.length ?? 0) > 0;
+
+  // relógio de minuto em minuto: a ilha do próximo paciente diz "em 25 min" e precisa andar
+  const [agoraMs, setAgoraMs] = useState(() => Date.now());
+  useEffect(() => {
+    const id = window.setInterval(() => setAgoraMs(Date.now()), 60_000);
+    return () => window.clearInterval(id);
+  }, []);
+  const proximo = d?.agenda
+    .filter((a) => (a.status === "agendado" || a.status === "confirmado") && Date.parse(a.fim) > agoraMs)
+    .sort((p, q) => p.inicio.localeCompare(q.inicio))[0];
+
+  // pilha "Pede atenção": escaladas na frente, depois confirmações e retornos pendentes
+  const atencao: ItemAtencao[] = d
+    ? [
+        ...d.escaladas.map<ItemAtencao>((c) => ({
+          chave: `esc-${c.id}`,
+          Icone: MessageCircle,
+          tom: "pa-tom--alerta",
+          titulo: c.paciente.nome,
+          texto: `${c.urgente ? "Urgente · " : ""}${c.motivo_escalonamento ?? c.ultima_mensagem?.texto ?? "Pediu para falar com você"} · ${haQuanto(c.iniciada_em)}`,
+          aoAbrir: () => router.push(`/conversas/${c.id}`),
+          acao: (
+            <Botao cheio onClick={() => void assumir(c.id, c.paciente.nome)}>
+              Assumir
+            </Botao>
+          ),
+        })),
+        ...((d.confirmacoes_pendentes ?? 0) > 0
+          ? [{
+              chave: "confirmacoes",
+              Icone: CalendarCheck,
+              tom: "pa-tom--aviso",
+              titulo: `${d.confirmacoes_pendentes} ${d.confirmacoes_pendentes === 1 ? "consulta a confirmar" : "consultas a confirmar"}`,
+              texto: "Nas próximas 48 horas. A IA já mandou lembrete; falta a resposta.",
+              aoAbrir: () => router.push("/financeiro#confirmacoes"),
+              acao: <BotaoLink href="/financeiro#confirmacoes">Ver</BotaoLink>,
+            } satisfies ItemAtencao]
+          : []),
+        ...((d.retornos_pendentes ?? 0) > 0
+          ? [{
+              chave: "retornos",
+              Icone: RotateCcw,
+              tom: "pa-tom--ia",
+              titulo: `${d.retornos_pendentes} ${d.retornos_pendentes === 1 ? "retorno para chamar" : "retornos para chamar"}`,
+              texto: "Pacientes com retorno previsto nos próximos 14 dias.",
+              aoAbrir: () => router.push("/financeiro#retornos"),
+              acao: <BotaoLink href="/financeiro#retornos">Ver</BotaoLink>,
+            } satisfies ItemAtencao]
+          : []),
+      ]
+    : [];
 
   type Slot =
     | { inicio: string; tipo: "ag"; a: NonNullable<typeof d>["agenda"][number] }
@@ -136,61 +192,54 @@ export function TelaHoje() {
 
   return (
     <Pagina>
-      <Cabecalho sobre={diaLongo(civil)} titulo="Hoje" />
+      <Cabecalho
+        sobre={diaLongo(civil)}
+        titulo="Hoje"
+        acao={
+          proximo ? (
+            <div className="ilha-caixa">
+              <IlhaProximo
+                id={proximo.id}
+                primeiroNome={primeiroNome(proximo.paciente.nome)}
+                nome={proximo.paciente.nome}
+                rotulo={`${hora(proximo.inicio)} – ${hora(proximo.fim)}${proximo.profissional ? ` · ${proximo.profissional.nome}` : ""}`}
+                detalhe={[proximo.tipo, proximo.paciente_novo ? "paciente novo" : null, proximo.status === "confirmado" ? "confirmada" : "aguarda confirmação"].filter(Boolean).join(" · ")}
+                quando={quandoChega(proximo.inicio, agoraMs, hora(proximo.inicio))}
+                aoAbrir={() => router.push(`/pacientes/${proximo.paciente_id}`)}
+                acao={
+                  proximo.status !== "confirmado" ? (
+                    <button type="button" className="dyn-round dyn-ok" aria-label={`Confirmar ${proximo.paciente.nome}`} onClick={() => void confirmar(proximo.id, `${hora(proximo.inicio)} com ${proximo.paciente.nome}`)}>
+                      <UserRoundCheck size={20} strokeWidth={2} aria-hidden />
+                    </button>
+                  ) : undefined
+                }
+              />
+            </div>
+          ) : undefined
+        }
+      />
 
       {r.fase === "erro" && !d && <Erro mensagem={r.erro} tentar={r.recarregar} />}
 
+      {!d ? (
+        <div className="pa" aria-hidden>
+          <span className="osso block h-5 w-40" />
+          <span className="osso mt-2.5 block h-[76px] w-full rounded-[14px]" />
+        </div>
+      ) : atencao.length > 0 ? (
+        <PilhaAtencao itens={atencao.filter((it) => !saindo || it.chave !== `esc-${saindo}`)} />
+      ) : (
+        <div className="pa">
+          <Vazio titulo="Nada esperando você." sub="A IA está respondendo tudo e não há consulta por confirmar." />
+        </div>
+      )}
+
       <div className="grade-hoje">
         <div>
-          <Bloco titulo="Esperando você" id="esperando" lado={temPendencia ? d!.escaladas.length : undefined} primeiro>
-            {!d ? (
-              <OssoLinha n={2} />
-            ) : temPendencia ? (
-              <Lista>
-                {d.escaladas.map((c) => (
-                  <Item key={c.id} saindo={saindo === c.id}>
-                    <Linha
-                      marca="escalada"
-                      alerta
-                      href={`/conversas/${c.id}`}
-                      titulo={c.paciente.nome}
-                      sub={c.motivo_escalonamento ?? c.ultima_mensagem?.texto ?? "Pediu para falar com você"}
-                      meta={
-                        <>
-                          {c.urgente ? "Urgente · " : ""}
-                          {haQuanto(c.iniciada_em)}
-                          {c.ultima_mensagem && c.ultima_mensagem.texto !== c.motivo_escalonamento && (
-                            <span className="tabela-linha__extra">
-                              {" · última mensagem: “"}
-                              {c.ultima_mensagem.texto.slice(0, 70)}
-                              {c.ultima_mensagem.texto.length > 70 ? "…" : ""}”
-                            </span>
-                          )}
-                        </>
-                      }
-                      lado={
-                        <Botao
-                          cheio
-                          onClick={(e) => {
-                            e.preventDefault();
-                            void assumir(c.id, c.paciente.nome);
-                          }}
-                        >
-                          Assumir
-                        </Botao>
-                      }
-                    />
-                  </Item>
-                ))}
-              </Lista>
-            ) : (
-              <Vazio titulo="Nada esperando você." sub="A IA está respondendo tudo." />
-            )}
-          </Bloco>
-
           <Bloco
             titulo="Agenda de hoje"
             id="agenda"
+            primeiro
             lado={d ? <Teto usado={d.pacientes_novos_semana} teto={d.teto_pacientes_novos_semana} /> : undefined}
           >
             {!d ? (
@@ -273,14 +322,14 @@ export function TelaHoje() {
               <OssoLinha n={1} />
             ) : (
               <div className="numeros">
-                <div className="numero"><b className="num">{reais(d.faturamento_previsto ?? 0)}</b><span>faturamento previsto hoje</span></div>
-                <div className="numero"><b className="num">{reais(d.faturamento_realizado ?? 0)}</b><span>já realizado (atendidos)</span></div>
+                <div className="numero"><b className="num"><NumeroRolante valor={reais(d.faturamento_previsto ?? 0)} /></b><span>faturamento previsto hoje</span></div>
+                <div className="numero"><b className="num"><NumeroRolante valor={reais(d.faturamento_realizado ?? 0)} /></b><span>já realizado (atendidos)</span></div>
                 <div className="numero">
-                  <b className="num">{d.comparecimento_30d && d.comparecimento_30d.total > 0 ? `${Math.round((d.comparecimento_30d.compareceram / d.comparecimento_30d.total) * 100)}%` : "—"}</b>
+                  <b className="num"><NumeroRolante valor={d.comparecimento_30d && d.comparecimento_30d.total > 0 ? `${Math.round((d.comparecimento_30d.compareceram / d.comparecimento_30d.total) * 100)}%` : "—"} /></b>
                   <span>comparecimento em 30 dias{d.comparecimento_30d ? ` · ${d.comparecimento_30d.faltaram} ${d.comparecimento_30d.faltaram === 1 ? "falta" : "faltas"}` : ""}</span>
                 </div>
-                <Link href="/financeiro#confirmacoes" className="numero"><b className="num">{d.confirmacoes_pendentes ?? 0}</b><span>a confirmar nas próximas 48 h</span></Link>
-                <Link href="/financeiro#retornos" className="numero"><b className="num">{d.retornos_pendentes ?? 0}</b><span>retornos para chamar</span></Link>
+                <Link href="/financeiro#confirmacoes" className="numero pressa"><b className="num"><NumeroRolante valor={String(d.confirmacoes_pendentes ?? 0)} /></b><span>a confirmar nas próximas 48 h</span></Link>
+                <Link href="/financeiro#retornos" className="numero pressa"><b className="num"><NumeroRolante valor={String(d.retornos_pendentes ?? 0)} /></b><span>retornos para chamar</span></Link>
               </div>
             )}
           </Bloco>

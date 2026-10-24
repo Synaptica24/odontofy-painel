@@ -364,7 +364,7 @@
   position: fixed;
   inset: 0;
   z-index: 60;
-  background: rgba(16, 24, 40, 0.4);
+  background: var(--escurecer);
   animation: folha-fundo var(--normal) ease forwards;
 }
 @keyframes folha-fundo {
@@ -378,10 +378,10 @@
   max-height: 92dvh;
   overflow: auto;
   background: var(--fundo);
-  border-radius: 16px 16px 0 0;
-  box-shadow: 0 -12px 32px rgba(16, 24, 40, 0.18);
+  border-radius: var(--raio-folha, 20px) var(--raio-folha, 20px) 0 0;
+  box-shadow: var(--sombra-lg);
   padding: 1rem 1rem calc(1rem + env(safe-area-inset-bottom, 0px));
-  animation: folha-sobe 320ms cubic-bezier(0.32, 0.72, 0, 1) forwards;
+  animation: folha-sobe 380ms cubic-bezier(0.32, 0.72, 0, 1) forwards;
 }
 @keyframes folha-sobe {
   from { transform: translateY(100%); }
@@ -403,9 +403,9 @@
 .folha__fechar {
   width: 2.25rem;
   height: 2.25rem;
-  border-radius: 8px;
-  border: 1px solid var(--pauta-2);
-  background: var(--fundo);
+  border-radius: 999px;
+  border: 0;
+  background: var(--fundo-3);
   display: grid;
   place-items: center;
   cursor: pointer;
@@ -435,7 +435,7 @@
     max-height: none;
     border-radius: 0;
     padding: 1.5rem;
-    animation: folha-desliza 320ms cubic-bezier(0.32, 0.72, 0, 1) forwards;
+    animation: folha-desliza 380ms cubic-bezier(0.32, 0.72, 0, 1) forwards;
   }
   @keyframes folha-desliza {
     from { transform: translateX(100%); }
@@ -453,25 +453,27 @@
   padding-right: 2rem;
 }
 .busca-lista {
-  border: 1px solid var(--pauta-2);
-  border-radius: 8px;
+  border: 1px solid var(--pauta);
+  border-radius: 12px;
   max-height: 12rem;
   overflow: auto;
   background: var(--fundo);
+  padding: 0.25rem;
 }
 .busca-lista button {
   width: 100%;
   text-align: left;
   padding: 0.5rem 0.75rem;
   border: 0;
-  border-bottom: 1px solid var(--pauta);
+  border-radius: 8px;
   background: transparent;
   cursor: pointer;
   font-size: var(--t-0);
+  font-weight: 500;
 }
 .busca-lista button:hover,
 .busca-lista button[aria-selected="true"] {
-  background: var(--ia-fundo);
+  background: var(--fundo-3);
 }
 .busca-lista button:last-child {
   border-bottom: 0;
@@ -489,7 +491,7 @@
   gap: 0.3rem;
   height: 1.375rem;
   padding: 0 0.5rem;
-  border-radius: 6px;
+  border-radius: 999px;
   font-size: var(--t--2);
   font-weight: 500;
   border: 1px solid var(--pauta);
@@ -529,8 +531,8 @@
   gap: 0.375rem;
 }
 .ficha__aba[aria-selected="true"] {
-  color: var(--ia);
-  border-bottom-color: var(--marcador);
+  color: var(--tinta);
+  border-bottom-color: var(--acento);
 }
 .ficha__aba .num {
   font-size: var(--t--2);
@@ -842,19 +844,19 @@
   gap: 0.75rem;
 }
 .numero {
-  padding: 0.75rem;
-  border: 1px solid var(--pauta);
-  border-radius: 8px;
-  background: var(--fundo);
+  padding: 0.875rem 1rem;
+  border: 0;
+  border-radius: 12px;
+  background: var(--fundo-2);
 }
 .numero b {
   display: block;
   font-size: var(--t-5);
-  font-weight: 600;
-  letter-spacing: -0.02em;
+  font-weight: 650;
+  letter-spacing: -0.025em;
   line-height: 1.1;
 }
-.numero span {
+.numero > span {
   font-size: var(--t--2);
   color: var(--tinta-3);
 }
@@ -865,8 +867,8 @@
 }
 .menu-conta__botao {
   height: 2.5rem;
-  padding: 0 0.5rem 0 0.25rem;
-  border-radius: 8px;
+  padding: 0 0.625rem 0 0.25rem;
+  border-radius: 999px;
   border: 1px solid transparent;
   background: transparent;
   display: inline-flex;
@@ -878,14 +880,14 @@
   font-weight: 500;
 }
 .menu-conta__botao:hover {
-  background: var(--fundo-2);
+  background: var(--fundo-3);
 }
 .menu-conta__avatar {
   width: 1.75rem;
   height: 1.75rem;
   border-radius: 50%;
-  background: var(--marcador);
-  color: #fff;
+  background: var(--acento);
+  color: var(--acento-tinta);
   display: grid;
   place-items: center;
   font-size: var(--t--2);
@@ -898,12 +900,12 @@
   min-width: 15rem;
   background: var(--fundo);
   border: 1px solid var(--pauta);
-  border-radius: 10px;
-  box-shadow: 0 12px 16px -4px rgba(16, 24, 40, 0.1), 0 4px 6px -2px rgba(16, 24, 40, 0.05);
+  border-radius: 14px;
+  box-shadow: var(--sombra-lg);
   padding: 0.375rem;
   z-index: 50;
   transform-origin: top right;
-  animation: menu-abre 160ms var(--saida);
+  animation: menu-abre 180ms var(--saida);
 }
 @keyframes menu-abre {
   from { opacity: 0; transform: scale(0.96); }
@@ -917,7 +919,7 @@
   width: 100%;
   height: 2.375rem;
   padding: 0 0.625rem;
-  border-radius: 6px;
+  border-radius: 9px;
   border: 0;
   background: transparent;
   color: var(--tinta);
@@ -927,7 +929,7 @@
 }
 .menu-conta__lista a:hover,
 .menu-conta__lista button:hover {
-  background: var(--fundo-2);
+  background: var(--fundo-3);
 }
 .menu-conta__sep {
   height: 1px;
@@ -950,8 +952,17 @@
 }
 .busca-topo input {
   height: 2.5rem;
-  width: 14rem;
+  width: 15rem;
   padding-left: 2.25rem;
+  border-radius: 999px;
+  transition:
+    width 200ms var(--saida),
+    border-color 150ms ease,
+    background-color 150ms ease,
+    box-shadow 150ms ease;
+}
+.busca-topo input:focus {
+  width: 19rem;
 }
 .busca-topo svg {
   position: absolute;
@@ -963,11 +974,15 @@
 }
 .busca-topo .busca-lista {
   position: absolute;
-  top: calc(100% + 0.25rem);
+  top: calc(100% + 0.375rem);
   left: 0;
   right: 0;
   z-index: 50;
-  box-shadow: 0 12px 16px -4px rgba(16, 24, 40, 0.1);
+  max-height: 20rem;
+  border-radius: 14px;
+  box-shadow: var(--sombra-lg);
+  transform-origin: top center;
+  animation: menu-abre 180ms var(--saida);
 }
 .sino {
   position: relative;

@@ -1,37 +1,40 @@
 ---
 name: Dr. Mateus Peixoto
-description: Clínica clara — o painel no desenho do Codental, o software que o dentista já usa; Inter, azul de ação, cinzas suaves, cartões brancos com borda de 1px.
+description: Clínica clara no padrão Figars/Brio — fluxo e hierarquia do Codental, visual neutro e premium; SF Pro/Inter, um acento azul-petróleo, botão primário em tinta, cartões de 14px com sombra em duas camadas, vidro nas barras.
 colors:
   fundo: "#ffffff"
-  fundo-app: "#f9fafb"
-  fundo-2: "#f2f4f7"
-  hoje-fundo: "#f5faff"
-  tinta: "#101828"
-  tinta-2: "#475467"
-  tinta-3: "#667085"
-  pauta: "#eaecf0"
-  pauta-2: "#d0d5dd"
-  marcador: "#1570ef"
-  marcador-2: "#175cd3"
-  ia: "#175cd3"
-  ia-vivo: "#1570ef"
-  ia-fundo: "#eff8ff"
-  ia-borda: "#b2ddff"
-  alerta: "#d92d20"
-  alerta-vivo: "#f04438"
-  alerta-fundo: "#fef3f2"
-  alerta-borda: "#fecdca"
-  sucesso: "#067647"
-  sucesso-vivo: "#17b26a"
-  sucesso-fundo: "#ecfdf3"
-  sucesso-borda: "#abefc6"
-  aviso: "#b54708"
-  aviso-vivo: "#f79009"
-  aviso-fundo: "#fffaeb"
-  aviso-borda: "#fedf89"
-  selecao: "#d1e9ff"
-  foco: "#1570ef"
-  barra: "#ffffff"
+  fundo-app: "#f5f5f7"
+  fundo-2: "#fafafb"
+  fundo-3: "#f0f0f3"
+  hoje-fundo: "#f3f7fa"
+  tinta: "#17171a"
+  tinta-2: "#5b5b63"
+  tinta-3: "#6c6c74"
+  pauta: "#e7e7ea"
+  pauta-2: "#d9d9de"
+  acento: "#2b6a8a"
+  acento-suave: "#e8f1f6"
+  marcador: "#17171a"
+  marcador-2: "#2b2b30"
+  ia: "#2b6a8a"
+  ia-vivo: "#2b6a8a"
+  ia-fundo: "#e8f1f6"
+  ia-borda: "#c5dbe7"
+  alerta: "#b8302a"
+  alerta-vivo: "#d0433c"
+  alerta-fundo: "#fceceb"
+  alerta-borda: "#f3c9c6"
+  sucesso: "#1a7a43"
+  sucesso-vivo: "#2a9a58"
+  sucesso-fundo: "#e7f5ec"
+  sucesso-borda: "#bfe3cc"
+  aviso: "#94600f"
+  aviso-vivo: "#c98a2a"
+  aviso-fundo: "#fbf2e2"
+  aviso-borda: "#efd9ad"
+  selecao: "#e8f1f6"
+  foco: "#2b6a8a"
+  barra: "rgb(255 255 255 / 0.78)"
 typography:
   display:
     fontFamily: "Inter, ui-sans-serif, system-ui, sans-serif"
@@ -252,7 +255,9 @@ components:
 
 ## Overview
 
-**Creative North Star: "Clínica clara"**
+**Creative North Star: "Clínica clara", no padrão Figars/Brio (2026-10-24)**
+
+Atualização de 2026-10-24: o visual passou a seguir o mesmo padrão de design da barbearia Figars (Brio): skill `emil-design-eng` (pressão `scale(.97)` em 140ms, curvas fortes `--saida`/`--meio`, entradas com `@starting-style`, nada acima de 400ms, teclado não anima) e blocos MIT do Bencho adaptados em `components/fx/` (número que rola, pilha "Pede atenção", ilha do próximo paciente). Base neutra (`#f5f5f7` / branco / tinta `#17171a`), um único acento azul-petróleo `#2b6a8a` (AA 5,9:1 sobre branco), botão primário em tinta, cartões de 14px com sombra em duas camadas, controles de 10px, folhas de 20px, vidro fosco só na barra superior, na inferior e no topo/rodapé da conversa. Abas viraram controle segmentado com indicador deslizante. O que segue abaixo descreve a hierarquia e o fluxo (que continuam os do Codental); onde citar azul `#1570EF` ou cinzas Untitled UI, valem os tokens do frontmatter.
 
 O Dr. Mateus usa o Codental todo dia. O painel do consultório segue o mesmo desenho para ele não sentir que está aprendendo outra ferramenta: barra superior branca com abas, cartões brancos com borda de 1px e sombra curta sobre uma página cinza-claríssima, azul como única cor de ação, cinzas suaves no texto, e estado dito por um ponto colorido pequeno ao lado do nome.
 

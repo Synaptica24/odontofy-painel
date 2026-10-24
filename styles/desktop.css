@@ -25,8 +25,8 @@
   background: var(--fundo);
   border: 1px solid var(--pauta);
   border-radius: var(--raio);
-  box-shadow: var(--sombra-xs);
-  padding: var(--e-4);
+  box-shadow: var(--sombra-md);
+  padding: var(--e-4) var(--e-5);
 }
 .painel + .painel {
   margin-top: var(--e-3);
@@ -54,8 +54,8 @@
 }
 .painel__n {
   font-size: var(--t-5);
-  font-weight: 600;
-  letter-spacing: -0.02em;
+  font-weight: 650;
+  letter-spacing: -0.025em;
   line-height: 1;
 }
 .painel__n--ia {
@@ -270,12 +270,18 @@
 }
 .pacientes-wa {
   display: inline-flex;
-  color: #16a34a;
-  padding: 2px;
+  color: var(--sucesso);
+  padding: 3px;
   border-radius: 999px;
+  transition:
+    background-color 160ms ease,
+    transform 140ms var(--saida);
 }
 .pacientes-wa:hover {
-  background: #dcfce7;
+  background: var(--sucesso-fundo);
+}
+.pacientes-wa:active {
+  transform: scale(0.94);
 }
 @media (min-width: 1024px) {
   .pacientes-cab {
@@ -310,8 +316,17 @@
     z-index: 20;
     height: 4rem;
     padding: 0 var(--e-6);
-    background: var(--barra);
-    border-bottom: 1px solid var(--pauta);
+    background: var(--vidro);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    backdrop-filter: blur(20px) saturate(180%);
+    border-bottom: 1px solid var(--vidro-linha);
+  }
+  @media (prefers-reduced-transparency: reduce) {
+    .topo {
+      background: var(--fundo);
+      -webkit-backdrop-filter: none;
+      backdrop-filter: none;
+    }
   }
   .topo__marca {
     display: flex;
@@ -320,10 +335,10 @@
     margin-right: var(--e-2);
   }
   .topo__nome {
-    font-size: var(--t-2);
-    font-weight: 700;
-    color: var(--marcador-2);
-    letter-spacing: -0.01em;
+    font-size: var(--t-1);
+    font-weight: 650;
+    color: var(--tinta);
+    letter-spacing: -0.02em;
     line-height: 1.1;
     white-space: nowrap;
   }
@@ -339,7 +354,7 @@
   .topo__nav {
     display: flex;
     align-items: center;
-    gap: 4px;
+    gap: 2px;
   }
   .topo__nav a {
     display: inline-flex;
@@ -348,21 +363,31 @@
     height: 2.5rem;
     padding: 0 0.875rem;
     border-radius: var(--raio-campo);
-    font-size: var(--t-0);
-    font-weight: 600;
+    font-size: 0.90625rem;
+    font-weight: 500;
     color: var(--tinta-2);
     white-space: nowrap;
     transition:
-      background-color var(--normal) ease,
-      color var(--normal) ease;
+      background-color 160ms ease,
+      color 160ms ease,
+      box-shadow 160ms ease,
+      transform 140ms var(--saida);
   }
   .topo__nav a:hover {
-    background: var(--fundo-2);
+    background: var(--fundo-3);
     color: var(--tinta);
   }
+  .topo__nav a:active {
+    transform: scale(0.97);
+  }
   .topo__nav a[aria-current="page"] {
-    background: var(--ia-fundo);
-    color: var(--ia);
+    background: var(--fundo);
+    color: var(--tinta);
+    font-weight: 600;
+    box-shadow: var(--sombra-sm);
+  }
+  .topo__nav a[aria-current="page"] svg {
+    color: var(--acento);
   }
   .topo__contador {
     display: inline-flex;
@@ -421,13 +446,16 @@
       background-color var(--normal) ease,
       color var(--normal) ease;
   }
+  .topo__icone {
+    border-radius: 999px;
+  }
   .topo__icone:hover {
-    background: var(--fundo-2);
+    background: var(--fundo-3);
     color: var(--tinta);
   }
   .topo__icone[aria-current="page"] {
-    background: var(--ia-fundo);
-    color: var(--ia);
+    background: var(--fundo-3);
+    color: var(--tinta);
   }
   .a-nav {
     display: none;
