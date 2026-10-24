@@ -145,7 +145,7 @@ export async function listarConversas(filtro: FiltroConversas = {}): Promise<Res
   const busca = filtro.busca?.toLocaleLowerCase('pt-BR');
   return sucesso(resumos().filter((c) => (!filtro.status || filtro.status === 'todas' || c.status === filtro.status)
     && (!filtro.paciente_id || c.paciente_id === filtro.paciente_id) && (filtro.urgente === undefined || c.urgente === filtro.urgente)
-    && (!busca || c.paciente.nome.toLocaleLowerCase('pt-BR').includes(busca) || c.paciente.telefone_e164.includes(busca)))
+    && (!busca || c.paciente.nome.toLocaleLowerCase('pt-BR').includes(busca) || (c.paciente.telefone_e164 ?? '').includes(busca)))
     .sort((a, b) => Date.parse(b.ultima_mensagem?.criada_em ?? b.iniciada_em) - Date.parse(a.ultima_mensagem?.criada_em ?? a.iniciada_em))
     .slice(deslocamento, deslocamento + limite));
 }
@@ -306,7 +306,7 @@ export async function resumoDoDia(data: DataCivil = hoje()): Promise<ResultadoAp
 }
 export async function listarPacientes(busca = ''): Promise<ResultadoApi<Paciente[]>> {
   await esperar();
-  return sucesso(pacientes.filter((p) => p.nome.toLocaleLowerCase('pt-BR').includes(busca.toLocaleLowerCase('pt-BR')) || p.telefone_e164.includes(busca))
+  return sucesso(pacientes.filter((p) => p.nome.toLocaleLowerCase('pt-BR').includes(busca.toLocaleLowerCase('pt-BR')) || (p.telefone_e164 ?? '').includes(busca))
     .map((p) => ({ ...p, contagem_conversas: conversas.filter((c) => c.paciente_id === p.id).length })));
 }
 export async function remarcarAgendamento(id: Id, novoInicio: DataHora): Promise<ResultadoApi<Agendamento>> {

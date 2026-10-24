@@ -3,7 +3,7 @@ export type Id = string;
 export type DataHora = string;
 export type DataCivil = string;
 export type Json = string | number | boolean | null | Json[] | { [chave: string]: Json };
-export type OrigemPaciente = 'whatsapp' | 'site' | 'campanha' | 'indicacao';
+export type OrigemPaciente = 'whatsapp' | 'site' | 'campanha' | 'indicacao' | 'codental';
 export type StatusPaciente = 'novo' | 'em_conversa' | 'agendado' | 'paciente' | 'fora_da_base';
 export type StatusConversa = 'ativa' | 'escalada' | 'assumida' | 'encerrada';
 export type DirecaoMensagem = 'entrada' | 'saida';
@@ -17,13 +17,21 @@ export type TipoAtendimento = string;
 export interface Paciente {
   /** Presente em listarPacientes; demais retratos podem omitir a contagem. */
   contagem_conversas?: number;
-  id: Id; nome: string; telefone_e164: string; origem: OrigemPaciente;
+  /** Null quando o cadastro não tem celular próprio (importação do Codental); veja telefone_contato. */
+  id: Id; nome: string; telefone_e164: string | null; origem: OrigemPaciente;
   codental_id: string | null; primeiro_contato: DataHora; ultimo_contato: DataHora;
   status: StatusPaciente; observacoes: string; nao_perturbe: boolean;
   /** Cadastro clínico (multi-consultório). */
   consultorio_id?: Id; cpf?: string; nascimento?: DataCivil | null; email?: string; endereco?: string;
   convenio_id?: Id | null; numero_carteirinha?: string; convenio?: Convenio | null;
   proximo_agendamento?: Agendamento | null;
+  /** Cadastro importado do Codental (migração 202610240001); só leitura no painel por enquanto. */
+  telefone_contato?: string; telefone_fixo?: string; sexo?: '' | 'masculino' | 'feminino' | 'outro'; rg?: string; profissao?: string;
+  cep?: string; complemento?: string; bairro?: string; cidade?: string; estado?: string;
+  responsavel_nome?: string; responsavel_nascimento?: DataCivil | null; responsavel_documento?: string;
+  emergencia_nome?: string; emergencia_telefone?: string; como_conheceu?: string;
+  convenio_titular?: string; convenio_titular_cpf?: string; codental_numero?: string;
+  ultimo_agendamento_codental?: DataHora | null; atualizado_em?: DataHora;
 }
 export interface Consultorio { id: Id; nome: string; demo: boolean; papel: string; ativo: boolean }
 export interface Profissional { id: Id; consultorio_id: Id; nome: string; cro: string; cor: string; user_id: Id | null; ativo: boolean; ordem: number }

@@ -49,3 +49,6 @@ next-env.d.ts
 # estado de ferramentas de design e cache de tipos
 .impeccable/
 tsconfig.tsbuildinfo
+
+# exports com dados reais de pacientes (LGPD) — nunca versionar
+/data/
