@@ -56,3 +56,20 @@
 - Agenda futura (há consultas marcadas até 04/2027 no Codental): não migrada.
 - ~~Busca no servidor (`painel_leitura`, operação 'pacientes') ainda não procura em `telefone_contato`~~ Feito na migração `202610240003` (nome, e-mail, celular, contato, fixo, CPF, código Codental).
 - ~~`salvar_paciente` ainda não grava os campos novos~~ Feito na migração `202610240002`.
+
+## Prontuário e agenda (2026-10-24, segunda rodada)
+Pedido do Gabriel: trazer consultas, evoluções/anamneses, orçamentos/pagamentos e arquivos. O Codental não tem API pública; a ficha é renderizada no servidor (Rails) e a agenda tem `GET /events.json?start&end`.
+**Como:** `scripts/codental-extrator.browser.js` roda na aba logada do Codental (só GET), lê as páginas da ficha (`/patients/:id`, `/evolutions`, `/quotes`, `/procedures`, `/debts`, `/anamneses/:id/edit`, `/documents`, `/uploads`) e envia JSON + arquivos para `scripts/coletor-local.mjs` (http://localhost:3011 → `data/codental/`). O Chrome pede permissão de "acesso à rede local" para a página falar com o localhost; o Gabriel autorizou. Depois `scripts/import-codental-prontuario.mjs` grava no Supabase (idempotente por `codental_id`). Migrações `202610240004` a `202610240006`.
+
+| | Codental | Importado |
+| --- | --- | --- |
+| Consultas (2024–04/2027) | 1692 | 1692 (passadas sem cancelamento → `concluido`; 24 futuras) |
+| Compromissos do Dr. (bloqueios) | 903 | 868 (35 sobrepostos entre si, descartados) |
+| Feriados | 143 | não migrados |
+| Evoluções | — | 331 |
+| Tratamentos → odontograma (por dente) | — | 235 |
+| Orçamentos / itens | — | 29 / 160 |
+| Pagamentos | — | 81 (aba nova na ficha) |
+| Anamneses respondidas | — | 32 (bloco na aba Anamnese) |
+| Receitas e atestados | — | 261 registros (sem PDF) |
+| Arquivos | 736 (3,05 GB) | enviados ao bucket `prontuario` (ver relatório da importação) |
