@@ -91,7 +91,9 @@ export interface NovoAgendamento {
   paciente_id: Id; tipo: string; inicio: DataHora; duracao_min: number; profissional_id?: Id | null; convenio_id?: Id | null;
   observacao?: string; valor?: number; status?: 'agendado' | 'confirmado';
 }
-export type DadosPaciente = Partial<Pick<Paciente, 'nome' | 'telefone_e164' | 'origem' | 'cpf' | 'nascimento' | 'email' | 'endereco' | 'convenio_id' | 'numero_carteirinha' | 'observacoes' | 'nao_perturbe'>>;
+export type DadosPaciente = Partial<Pick<Paciente, 'nome' | 'telefone_e164' | 'origem' | 'cpf' | 'nascimento' | 'email' | 'endereco' | 'convenio_id' | 'numero_carteirinha' | 'observacoes' | 'nao_perturbe'
+  | 'telefone_contato' | 'telefone_fixo' | 'sexo' | 'rg' | 'profissao' | 'cep' | 'complemento' | 'bairro' | 'cidade' | 'estado'
+  | 'responsavel_nome' | 'responsavel_nascimento' | 'responsavel_documento' | 'emergencia_nome' | 'emergencia_telefone' | 'como_conheceu' | 'convenio_titular' | 'convenio_titular_cpf'>>;
 export interface Conversa {
   id: Id; paciente_id: Id; iniciada_em: DataHora; encerrada_em: DataHora | null;
   status: StatusConversa; motivo_escalonamento: string | null; resumo_gerado: string | null;

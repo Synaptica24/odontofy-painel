@@ -54,8 +54,12 @@ export async function executarClinica(operacao: string, entrada: unknown): Promi
       /* ----- pacientes e agenda ----- */
       case 'salvarPaciente': {
         const d = objeto(a.dados);
-        if (d.telefone_e164 !== undefined && !/^\+[1-9][0-9]{7,14}$/.test(String(d.telefone_e164))) throw { code: '22023' };
-        if (d.cpf !== undefined) { const l = String(d.cpf).replace(/\D/g, '').length; if (l !== 0 && l !== 11) throw { code: '22023' }; }
+        // Telefone opcional desde a migração 202610240001: null/'' limpa; a RPC exige ao menos um contato (celular, contato ou fixo).
+        if (d.telefone_e164 !== undefined && d.telefone_e164 !== null && d.telefone_e164 !== '' && !/^\+[1-9][0-9]{7,14}$/.test(String(d.telefone_e164))) throw { code: '22023' };
+        for (const k of ['cpf', 'convenio_titular_cpf'] as const) if (d[k] !== undefined) { const l = String(d[k]).replace(/\D/g, '').length; if (l !== 0 && l !== 11) throw { code: '22023' }; }
+        if (d.sexo !== undefined && !['', 'masculino', 'feminino', 'outro'].includes(String(d.sexo))) throw { code: '22023' };
+        for (const k of ['telefone_contato', 'telefone_fixo', 'rg', 'profissao', 'cep', 'complemento', 'bairro', 'cidade', 'estado', 'responsavel_nome', 'responsavel_documento', 'emergencia_nome', 'emergencia_telefone', 'como_conheceu', 'convenio_titular'] as const) if (d[k] !== undefined) d[k] = texto(d[k], 200);
+        for (const k of ['nascimento', 'responsavel_nascimento'] as const) if (d[k] !== undefined && d[k] !== null && d[k] !== '' && !/^\d{4}-\d{2}-\d{2}$/.test(String(d[k]))) throw { code: '22023' };
         dados = await rpc('salvar_paciente', { p_id: idOpcional(a.id), p_dados: d as Json }); break;
       }
       case 'criarAgendamento': {

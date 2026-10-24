@@ -55,4 +55,4 @@
 - Histórico clínico (evoluções, anamneses, odontograma, orçamentos, pagamentos, arquivos) do Codental: não migrado. O export nativo cobre só cadastro; o prontuário teria de ser lido ficha a ficha (436) ou pedido ao suporte do Codental como export completo.
 - Agenda futura (há consultas marcadas até 04/2027 no Codental): não migrada.
 - Busca no servidor (`painel_leitura`, operação 'pacientes') ainda não procura em `telefone_contato`; a tela de Pacientes filtra no navegador, então não é afetada.
-- `salvar_paciente` ainda não grava os campos novos (sexo, RG, endereço detalhado etc.); pedido ao Codex em `docs/PEDIDOS.md`.
+- ~~`salvar_paciente` ainda não grava os campos novos~~ Feito na migração `202610240002`.
