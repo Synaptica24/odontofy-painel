@@ -101,6 +101,18 @@ export function telefoneBonito(e164: string | null | undefined) {
 export function telefoneExibicao(p: { telefone_e164: string | null; telefone_contato?: string; telefone_fixo?: string }) {
   return p.telefone_e164 || p.telefone_contato || p.telefone_fixo || null;
 }
+/** Ordena um resultado de busca: quem bate exatamente no código, CPF ou telefone vem antes de quem bate só em parte. */
+export function ordenarBusca<T extends { nome: string; cpf?: string; codental_numero?: string; telefone_e164: string | null; telefone_contato?: string }>(lista: T[], termo: string) {
+  const t = termo.trim().toLowerCase();
+  const d = t.replace(/D/g, "");
+  const peso = (p: T) =>
+    (p.codental_numero && p.codental_numero.toLowerCase() === t) || (d.length >= 3 && (p.cpf === d || (p.telefone_e164 ?? "").replace(/D/g, "").endsWith(d) || (p.telefone_contato ?? "").replace(/D/g, "").endsWith(d)))
+      ? 0
+      : p.nome.toLowerCase().startsWith(t)
+        ? 1
+        : 2;
+  return [...lista].sort((a, b) => peso(a) - peso(b) || a.nome.localeCompare(b.nome, "pt-BR"));
+}
 /** wa.me só funciona com dígitos; sem número devolve null para o botão sumir. */
 export function linkWa(e164: string | null | undefined, texto?: string) {
   if (!e164) return null;

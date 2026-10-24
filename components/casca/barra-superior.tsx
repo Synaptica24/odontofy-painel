@@ -9,7 +9,7 @@ import {
 } from "lucide-react";
 import { escolherConsultorio, inscreverEmConversas, listarPacientes, meusConsultorios, resumoDoDia, FIXTURE_ATIVA } from "@/lib/api";
 import type { Consultorio, Paciente } from "@/lib/contratos";
-import { hojeCivil, telefoneBonito } from "@/components/dados/datas";
+import { hojeCivil, ordenarBusca, telefoneBonito, telefoneExibicao } from "@/components/dados/datas";
 
 /* Barra superior do desktop, no desenho do Codental: Hoje · Agenda · Pacientes · Financeiro · Conversas,
    busca de paciente, sino de pendências e menu da conta (troca de consultório, IA, campanha, consumo, ajustes, sair). */
@@ -65,7 +65,7 @@ export function BarraSuperior() {
     const termo = busca.trim();
     const t = window.setTimeout(() => {
       if (termo.length < 2) { setResultados(null); return; }
-      void listarPacientes(termo).then((r) => setResultados(r.sucesso ? r.dados.slice(0, 8) : []));
+      void listarPacientes(termo).then((r) => setResultados(r.sucesso ? ordenarBusca(r.dados, termo).slice(0, 8) : []));
     }, termo.length < 2 ? 0 : 200);
     return () => window.clearTimeout(t);
   }, [busca]);
@@ -116,7 +116,7 @@ export function BarraSuperior() {
             className="a-entrada"
             type="search"
             placeholder="Buscar paciente"
-            aria-label="Buscar paciente por nome, telefone ou CPF"
+            aria-label="Buscar paciente por nome, telefone, CPF ou código"
             value={busca}
             onChange={(e) => setBusca(e.target.value)}
             onKeyDown={(e) => {
@@ -127,12 +127,12 @@ export function BarraSuperior() {
           {resultados && (
             <div className="busca-lista" role="listbox">
               {resultados.length === 0 ? (
-                <button type="button" disabled>Ninguém com esse nome.<small>Enter abre a lista completa.</small></button>
+                <button type="button" disabled>Ninguém com esse nome, telefone ou código.<small>Enter abre a lista completa.</small></button>
               ) : (
                 resultados.map((p) => (
                   <button key={p.id} type="button" role="option" aria-selected={false} onClick={() => { setResultados(null); setBusca(""); router.push(`/pacientes/${p.id}`); }}>
                     {p.nome}
-                    <small>{telefoneBonito(p.telefone_e164)}{p.convenio ? ` · ${p.convenio.nome}` : ""}</small>
+                    <small>{telefoneBonito(telefoneExibicao(p))}{p.codental_numero ? ` · nº ${p.codental_numero}` : ""}{p.convenio ? ` · ${p.convenio.nome}` : ""}</small>
                   </button>
                 ))
               )}
