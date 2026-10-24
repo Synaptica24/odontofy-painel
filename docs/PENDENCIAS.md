@@ -29,9 +29,9 @@ Cada agente adiciona aqui o que precisa e não está no brief. Não inventar.
 - [ ] Prazo da pausa mostrado no toast de "Assumir" vem de `config.pausa_agente_minutos`; hoje mostra 30 min de fixture.
 
 
-## Marfim (landing do produto) e migração do prontuário (Claude, 2026-10-24)
+## Incisivo (landing do produto) e migração do prontuário (Claude, 2026-10-24)
 
-- [ ] WhatsApp comercial para o botão "Pedir uma demonstração" da landing (`Marfim-site/config/site.ts`); enquanto vazio, o botão abre e-mail para gabrieltomaz442@gmail.com.
-- [ ] Nome "Marfim" e marca (M em tinta + ponto azul-petróleo) foram escolhidos pelo Claude; confirmar ou trocar. Domínio próprio fica para depois (hoje: marfim-odonto-zeta.vercel.app, porque marfim-odonto.vercel.app já existia).
+- [ ] WhatsApp comercial para o botão "Pedir uma demonstração" da landing (`Incisivo-site/config/site.ts`); enquanto vazio, o botão abre e-mail para gabrieltomaz442@gmail.com.
+- [ ] Nome do produto: **Incisivo** (trocou "Marfim" a pedido do Gabriel em 2026-10-24, pensando em vender para mais dentistas). incisivo.com.br e incisivo.app estavam sem DNS na checagem (provável livres): registrar antes que alguém pegue.
 - [ ] Consultas passadas do Codental marcadas como "Agendada/Confirmada" entraram como "concluída" (o Codental não registra presença em tudo); faltas e cancelamentos vieram como estão. Confirmar se a regra serve.
 - [ ] Receitas e atestados do Codental entraram só como registro (tipo + resumo), sem PDF; o PDF continua no Codental.
