@@ -9,7 +9,11 @@ Os componentes abaixo foram adaptados de blocos **gratuitos** do Bencho, distrib
 | `components/fx/numero-rolante.tsx` | Rolling counter |
 | `components/fx/ilha-proximo.tsx` | Dynamic island |
 | `components/fx/pilha-atencao.tsx` | Toast stack |
-| trechos correspondentes em `styles/fx.css` | CSS dos blocos acima |
+| `components/fx/deslizar-confirmar.tsx` | Slide to confirm |
+| `components/fx/reacoes.tsx` | Emoji reactions |
+| trechos correspondentes em `styles/fx.css` e `styles/fx-blocos.css` | CSS dos blocos acima |
+
+Os demais blocos em `components/fx/` (`fita-dias`, `tambor`, `bilhete`, `grupo-avatares`, `cartao-previa`, `confete`, `use-ima-centro`) são código próprio do Brio, sem licença de terceiro.
 
 Os blocos **Pro** do Bencho não foram copiados: não há licença Pro neste projeto.
 

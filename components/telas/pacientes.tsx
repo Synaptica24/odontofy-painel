@@ -10,6 +10,9 @@ import { diaCurto, hora, linkWa, telefoneBonito, telefoneExibicao } from "@/comp
 import { Abas, Bloco, Botao, Cabecalho, Entrada, Erro, Item, Linha, Lista, OssoLinha, Pagina, Vazio } from "@/components/ui/primitivos";
 import { PacienteForm } from "@/components/clinica/paciente-form";
 import { cpfBonito } from "@/components/clinica/ficha-util";
+import { CartaoPrevia } from "@/components/fx/cartao-previa";
+import { Confete } from "@/components/fx/confete";
+import { Avatar } from "@/components/fx/grupo-avatares";
 
 /* Lista de pacientes no desenho do Codental: três abas (Buscar, Aniversariantes, Retornos semestrais),
    busca por nome/telefone/CPF/código e cada linha com nome + última consulta, CPF e telefone com WhatsApp. */
@@ -58,6 +61,7 @@ function Pacientes() {
   const [busca, setBusca] = useState(params.get("busca") ?? "");
   const [aba, setAba] = useState<Aba>("buscar");
   const [novo, setNovo] = useState(false);
+  const [festa, setFesta] = useState(false);
   const [agora] = useState(() => Date.now());
   // Carrega todos uma vez (a lista inteira cabe numa chamada) e filtra no navegador: a busca responde na hora.
   const r = useApi(() => listarPacientes(), []);
@@ -93,7 +97,9 @@ function Pacientes() {
   function cadastrado(p: Paciente) {
     setNovo(false);
     r.definir((atual) => [p, ...atual]);
-    router.push(`/pacientes/${p.id}`);
+    // uma rajada de confete e só então a ficha abre; sem movimento o canvas não desenha e a espera é curta
+    setFesta(true);
+    window.setTimeout(() => router.push(`/pacientes/${p.id}`), window.matchMedia("(prefers-reduced-motion: reduce)").matches ? 0 : 1100);
   }
 
   const titulo = aba === "aniversariantes" ? "Aniversariantes do mês" : aba === "retornos" ? "Sem consulta há mais de 6 meses" : busca ? "Resultado" : "Todos";
@@ -135,6 +141,7 @@ function Pacientes() {
         )}
       </Bloco>
       {novo && <PacienteForm nomeInicial={lista && lista.length === 0 ? busca.trim() : ""} aoFechar={() => setNovo(false)} aoSalvar={cadastrado} />}
+      {festa && <Confete origem={{ x: 0.5, y: 0.3 }} />}
     </Pagina>
   );
 }
@@ -150,6 +157,25 @@ function LinhaPaciente({ p, aba, agora }: { p: Paciente; aba: Aba; agora: number
       : ultima
         ? `Última consulta: ${new Date(ultima).toLocaleDateString("pt-BR", { timeZone: "America/Sao_Paulo" })} - ${haQuantoLongo(ultima, agora)}`
         : `Cadastro em ${diaCurto(p.primeiro_contato)}`;
+  const previa = (
+    <>
+      <div className="flex items-center gap-3">
+        <Avatar nome={p.nome} tamanho={36} />
+        <div className="min-w-0">
+          <p className="truncate text-[14px] font-semibold">{p.nome}</p>
+          <p className="text-tinta-3">{ORIGEM[p.origem] ?? p.origem}</p>
+        </div>
+      </div>
+      <dl>
+        <dt>Telefone</dt><dd>{telefone ? telefoneBonito(telefone) : "sem telefone"}</dd>
+        {p.cpf && <><dt>CPF</dt><dd>{cpfBonito(p.cpf)}</dd></>}
+        {p.nascimento && <><dt>Nascimento</dt><dd>{p.nascimento.slice(8, 10)}/{p.nascimento.slice(5, 7)}/{p.nascimento.slice(0, 4)}</dd></>}
+        <dt>Convênio</dt><dd>{p.convenio?.nome ?? "Particular"}</dd>
+        <dt>{p.proximo_agendamento ? "Próxima" : "Última"}</dt>
+        <dd>{p.proximo_agendamento ? `${diaCurto(p.proximo_agendamento.inicio)} às ${hora(p.proximo_agendamento.inicio)}` : ultima ? haQuantoLongo(ultima, agora) : "sem consulta"}</dd>
+      </dl>
+    </>
+  );
   return (
     <Item>
       <Linha
@@ -157,7 +183,7 @@ function LinhaPaciente({ p, aba, agora }: { p: Paciente; aba: Aba; agora: number
         href={`/pacientes/${p.id}`}
         titulo={
           <>
-            {p.nome}
+            <CartaoPrevia cartao={previa}>{p.nome}</CartaoPrevia>
             {p.convenio && <span className="chip chip--cor ml-2 align-middle" style={{ background: p.convenio.cor }}>{p.convenio.nome}</span>}
           </>
         }

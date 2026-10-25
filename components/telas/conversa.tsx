@@ -16,6 +16,7 @@ import type { Mensagem } from "@/lib/contratos";
 import { useApi } from "@/components/dados/use-api";
 import { diaLongo, faltaQuanto, hojeCivil, hora } from "@/components/dados/datas";
 import { Botao, Erro, Marca } from "@/components/ui/primitivos";
+import { Reacoes } from "@/components/fx/reacoes";
 
 function agruparPorDia(msgs: Mensagem[]) {
   const grupos: { dia: string; itens: Mensagem[] }[] = [];
@@ -33,6 +34,8 @@ export function TelaConversa({ id }: { id: string }) {
   const cfg = useApi(() => lerConfig(), []);
   const [texto, setTexto] = useState("");
   const [enviando, setEnviando] = useState(false);
+  // última reação (emoji) que você mandou nesta visita; vai como mensagem normal pelo WhatsApp
+  const [reacao, setReacao] = useState<string | null>(null);
   const fim = useRef<HTMLDivElement>(null);
   const [agora, setAgora] = useState(() => new Date());
 
@@ -101,8 +104,14 @@ export function TelaConversa({ id }: { id: string }) {
     });
   }
 
-  async function enviar() {
-    const t = texto.trim();
+  async function reagir(emoji: string) {
+    if (!d || enviando) return;
+    setReacao(emoji);
+    await enviar(emoji);
+  }
+
+  async function enviar(conteudo?: string) {
+    const t = (conteudo ?? texto).trim();
     if (!t || !d || enviando) return;
     setEnviando(true);
     const otimista: Mensagem = {
@@ -118,13 +127,18 @@ export function TelaConversa({ id }: { id: string }) {
       criada_em: new Date().toISOString(),
     };
     r.definir((x) => ({ ...x, mensagens: [...x.mensagens, otimista] }));
-    setTexto("");
+    if (!conteudo) setTexto("");
     const res = await enviarMensagem(id, t);
     setEnviando(false);
     if (!res.sucesso) {
       r.definir((x) => ({ ...x, mensagens: x.mensagens.filter((m) => m.id !== otimista.id) }));
-      setTexto(t);
-      toast.error("A mensagem não saiu.", { description: `${res.erro.mensagem} O texto continua aí embaixo.` });
+      if (conteudo) {
+        setReacao(null);
+        toast.error("A reação não saiu.", { description: res.erro.mensagem });
+      } else {
+        setTexto(t);
+        toast.error("A mensagem não saiu.", { description: `${res.erro.mensagem} O texto continua aí embaixo.` });
+      }
       return;
     }
     r.definir((x) => ({ ...x, mensagens: x.mensagens.map((m) => (m.id === otimista.id ? res.dados : m)) }));
@@ -214,6 +228,7 @@ export function TelaConversa({ id }: { id: string }) {
               placeholder={`Responder ${d?.paciente.nome ?? ""}`}
               aria-label="Sua resposta"
             />
+            <Reacoes valor={reacao} aoEscolher={(e) => void reagir(e)} aoLimpar={() => setReacao(null)} desabilitado={enviando} />
             <button type="submit" className="a-thread__enviar pressa" disabled={!texto.trim() || enviando} aria-label="Enviar">
               <Send size={20} strokeWidth={2} />
             </button>

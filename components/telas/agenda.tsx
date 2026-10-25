@@ -16,6 +16,10 @@ import { Botao, Campo, Entrada, Erro, Pagina, AreaTexto, Abas } from "@/componen
 import { Folha } from "@/components/clinica/folha";
 import { BuscaPaciente } from "@/components/clinica/busca-paciente";
 import { PacienteForm } from "@/components/clinica/paciente-form";
+import { FitaDias } from "@/components/fx/fita-dias";
+import { DeslizarConfirmar } from "@/components/fx/deslizar-confirmar";
+import { SeletorHora } from "@/components/fx/tambor";
+import { Bilhete } from "@/components/fx/bilhete";
 
 /* Agenda no desenho do Codental: minicalendário à esquerda, grade por dia com faixas de horário,
    blocos coloridos por estado, clique no vazio cria, clique no bloco abre. Um profissional por vez. */
@@ -157,6 +161,19 @@ export function TelaAgenda() {
   const hoje = hojeCivil();
   const minutosAgora = minutosLocais(new Date(agora).toISOString());
 
+  // fita de dias (visão Dia): duas semanas para trás, quatro para a frente a partir de hoje; se a data cair fora, a janela anda com ela
+  const diasFita = useMemo(() => {
+    const centro = data < somarDias(hoje, -14) || data > somarDias(hoje, 28) ? data : hoje;
+    return Array.from({ length: 43 }, (_, i) => somarDias(centro, i - 14));
+  }, [data, hoje]);
+  const contagensFita = useMemo(() => {
+    const m = new Map<string, number>();
+    if (!d) return m;
+    for (const c of colunas) m.set(c, 0);
+    for (const a of d.agendamentos) if (a.status !== "cancelado") m.set(civilDe(a.inicio), (m.get(civilDe(a.inicio)) ?? 0) + 1);
+    return m;
+  }, [d, colunas]);
+
   return (
     <Pagina>
       <div className="ag">
@@ -196,6 +213,7 @@ export function TelaAgenda() {
             <Abas valor={visao} aoMudar={setVisao} opcoes={[{ valor: "dia", rotulo: "Dia" }, { valor: "semana", rotulo: "Semana" }]} />
             <Botao cheio onClick={() => setNovo({ civil: data, minutos: Math.max(HORA_INICIO * 60, Math.ceil(minutosAgora / 30) * 30) })}><Plus size={16} aria-hidden /> Nova consulta</Botao>
           </div>
+          {visao === "dia" && <FitaDias dias={diasFita} valor={data} aoMudar={irPara} hoje={hoje} contagens={contagensFita} />}
 
           <div className="ag__rolagem">
             <div className="ag__grade" style={{ "--dias": colunas.length, "--altura-hora": `${ALTURA_HORA}px` } as React.CSSProperties}>
@@ -323,6 +341,8 @@ function NovaConsulta({ civil, minutos, config, profissionais, profissionalId, c
   const [cadastrando, setCadastrando] = useState<string | null>(null);
   const [f, setF] = useState({ data: civil, hora: horaCurta(minutos), tipo: tipos[0]?.[0] ?? "Avaliação", duracao: tipos[0]?.[1] ?? 30, profissional_id: profissionalId, convenio_id: "", valor: "", observacao: "", status: "agendado" as "agendado" | "confirmado" });
   const [salvando, setSalvando] = useState(false);
+  // consulta recém-marcada: o bilhete sai da "impressora" antes de fechar a folha
+  const [marcada, setMarcada] = useState<{ id: string; inicio: string; fim: string } | null>(null);
   function escolherPaciente(p: Paciente | null) {
     setPaciente(p);
     if (p?.convenio_id) setF((a) => ({ ...a, convenio_id: p.convenio_id ?? "" }));
@@ -337,9 +357,26 @@ function NovaConsulta({ civil, minutos, config, profissionais, profissionalId, c
     setSalvando(false);
     if (!res.sucesso) { toast.error("Não deu para marcar.", { description: res.erro.codigo === "conflito" ? "Já existe consulta ou bloqueio nesse horário." : res.erro.mensagem }); return; }
     toast(`Consulta marcada: ${paciente.nome}`, { description: `${diaLongo(f.data)} às ${f.hora}` });
-    aoCriar();
+    setMarcada({ id: res.dados.id, inicio: res.dados.inicio, fim: res.dados.fim });
   }
   const m = (campo: keyof typeof f) => (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => setF((a) => ({ ...a, [campo]: e.target.value }));
+
+  if (marcada && paciente) {
+    const prof = profissionais.find((p) => p.id === f.profissional_id) ?? null;
+    const tel = telefoneExibicao(paciente);
+    const msg = `Olá, ${paciente.nome.split(" ")[0]}! Sua consulta (${f.tipo}) ficou marcada para ${diaLongo(f.data).toLowerCase()} às ${f.hora}${prof ? ` com ${prof.nome}` : ""}. Qualquer coisa, é só responder aqui.`;
+    const wa = linkWa(tel, msg);
+    return (
+      <Folha titulo="Consulta marcada" sobre={paciente.nome} aoFechar={aoCriar}
+        acoes={<>
+          {wa && <a className="a-botao a-botao--cheio pressa inline-flex items-center gap-1.5" href={wa} target="_blank" rel="noopener"><MessageCircle size={16} aria-hidden /> Avisar no WhatsApp</a>}
+          <Botao onClick={aoCriar}>Fechar</Botao>
+        </>}>
+        <Bilhete dados={{ id: marcada.id, consultorio: "Comprovante da consulta", paciente: paciente.nome, tipo: f.tipo, inicio: marcada.inicio, fim: marcada.fim, valor: Number(f.valor.replace(",", ".")) || 0, profissional: prof ? { nome: prof.nome, cor: prof.cor } : null }} />
+      </Folha>
+    );
+  }
+
   return (
     <>
       <Folha titulo="Nova consulta" sobre={`${diaLongo(civil)} · ${horaCurta(minutos)}`} aoFechar={aoFechar}>
@@ -347,7 +384,10 @@ function NovaConsulta({ civil, minutos, config, profissionais, profissionalId, c
           <Campo rotulo="Paciente"><BuscaPaciente valor={paciente} aoEscolher={escolherPaciente} aoCriarNovo={(t) => setCadastrando(t)} autoFoco /></Campo>
           <div className="folha__grade folha__grade--2">
             <Campo rotulo="Dia"><Entrada type="date" value={f.data} onChange={m("data")} required /></Campo>
-            <Campo rotulo="Hora"><Entrada type="time" value={f.hora} onChange={m("hora")} step={300} required /></Campo>
+            <div className="a-campo">
+              <span className="a-campo__rotulo">Hora <span className="num text-tinta-3">· {f.hora}</span></span>
+              <SeletorHora valor={f.hora} aoMudar={(hhmm) => setF((a) => ({ ...a, hora: hhmm }))} horaInicio={HORA_INICIO} horaFim={HORA_FIM} passoMin={15} />
+            </div>
             <Campo rotulo="Tipo">
               {tipos.length ? (
                 <select className="a-entrada a-select" value={f.tipo} onChange={(e) => { const t = e.target.value; setF((a) => ({ ...a, tipo: t, duracao: config?.duracoes_por_tipo[t] ?? a.duracao })); }}>
@@ -420,6 +460,7 @@ function DetalheConsulta({ a, convenios, aoFechar, agir, enviarConfirmacao, aoEd
 }) {
   const [remarcando, setRemarcando] = useState(false);
   const [editando, setEditando] = useState(false);
+  const [cancelando, setCancelando] = useState(false);
   const [novaData, setNovaData] = useState(civilDe(a.inicio));
   const [novaHora, setNovaHora] = useState(hora(a.inicio));
   const [ed, setEd] = useState({ convenio_id: a.convenio_id ?? "", valor: a.valor ? String(a.valor) : "", observacao: a.observacao });
@@ -434,13 +475,23 @@ function DetalheConsulta({ a, convenios, aoFechar, agir, enviarConfirmacao, aoEd
     <Folha titulo={a.paciente.nome} sobre={`${diaLongo(civilDe(a.inicio))} · ${hora(a.inicio)} – ${hora(a.fim)}`} aoFechar={aoFechar}
       acoes={
         <>
-          {!encerrado && (a.status === "sugerido" || a.status === "agendado") && <Botao cheio onClick={() => void agir(a, "confirmar")}>Confirmar</Botao>}
           {!encerrado && a.status !== "sugerido" && <Botao onClick={() => void agir(a, "concluir")}>Atendido</Botao>}
           {!encerrado && a.status !== "sugerido" && <Botao alerta onClick={() => void agir(a, "falta")}>Faltou</Botao>}
           {!encerrado && <Botao onClick={() => setRemarcando((v) => !v)}>Remarcar</Botao>}
-          {!encerrado && <Botao onClick={() => { if (window.confirm("Cancelar esta consulta?")) void agir(a, "cancelar"); }}>Cancelar</Botao>}
+          {!encerrado && <Botao onClick={() => setCancelando((v) => !v)} aria-expanded={cancelando}>Cancelar</Botao>}
         </>
       }>
+      {!encerrado && (a.status === "sugerido" || a.status === "agendado") && !cancelando && (
+        <div className="mb-4">
+          <DeslizarConfirmar rotulo="Arraste para confirmar a consulta" rotuloFeito="Confirmada" aoConfirmar={() => void agir(a, "confirmar")} />
+        </div>
+      )}
+      {cancelando && (
+        <div className="mb-4">
+          <DeslizarConfirmar tom="alerta" rotulo="Arraste para cancelar a consulta" rotuloFeito="Cancelada" aoConfirmar={() => void agir(a, "cancelar")} />
+          <p className="mt-1.5 text-[12px] text-tinta-3">O paciente não é avisado automaticamente. Toque em Cancelar de novo para desistir.</p>
+        </div>
+      )}
       <dl className="ficha__resumo">
         <div><dt>Estado</dt><dd><span className={`chip ${CHIP_STATUS[a.status]}`}>{ROTULO_STATUS[a.status]}</span>{a.confirmacao_enviada_em && a.status === "agendado" ? <span className="ml-2 text-[12px] text-tinta-3">confirmação enviada {hora(a.confirmacao_enviada_em)}</span> : null}</dd></div>
         <div><dt>Tipo</dt><dd>{a.tipo}{a.paciente_novo ? " · paciente novo" : ""}</dd></div>

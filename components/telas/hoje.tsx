@@ -8,6 +8,7 @@ import { CalendarCheck, MessageCircle, RotateCcw, UserRoundCheck } from "lucide-
 import { IlhaProximo, quandoChega } from "@/components/fx/ilha-proximo";
 import { NumeroRolante } from "@/components/fx/numero-rolante";
 import { PilhaAtencao, type ItemAtencao } from "@/components/fx/pilha-atencao";
+import { GrupoAvatares } from "@/components/fx/grupo-avatares";
 import {
   agendaDaSemana,
   assumirConversa,
@@ -237,7 +238,18 @@ export function TelaHoje() {
       <div className="grade-hoje">
         <div>
           <Bloco
-            titulo="Agenda de hoje"
+            titulo={
+              <span className="group inline-flex items-center gap-2.5">
+                Agenda de hoje
+                {d && (
+                  <GrupoAvatares
+                    tamanho={24}
+                    maximo={5}
+                    pessoas={d.agenda.filter((a) => a.status !== "cancelado" && a.status !== "faltou").map((a) => ({ nome: a.paciente.nome, cor: a.profissional?.cor ?? null }))}
+                  />
+                )}
+              </span>
+            }
             id="agenda"
             primeiro
             lado={d ? <Teto usado={d.pacientes_novos_semana} teto={d.teto_pacientes_novos_semana} /> : undefined}

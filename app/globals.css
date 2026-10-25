@@ -7,6 +7,7 @@
 @import "../styles/ficha.css";
 @import "../styles/assinar.css";
 @import "../styles/fx.css";
+@import "../styles/fx-blocos.css";
 
 @theme inline {
   --color-fundo: var(--fundo);

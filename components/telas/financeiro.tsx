@@ -9,6 +9,8 @@ import type { FinanceiroResumo, Retorno } from "@/lib/contratos";
 import { useApi } from "@/components/dados/use-api";
 import { diaCurto, diaLongo, hojeCivil, hora, inicioDaSemana, reais, somarDias, telefoneBonito, telefoneExibicao, linkWa } from "@/components/dados/datas";
 import { Abas, Bloco, Botao, Cabecalho, Erro, Item, Linha, Lista, OssoLinha, Pagina, Vazio } from "@/components/ui/primitivos";
+import { Confete } from "@/components/fx/confete";
+import { NumeroRolante } from "@/components/fx/numero-rolante";
 
 /* Financeiro: faturamento previsto e realizado, orçamentos por estado, confirmações da semana,
    lista de faltas e retornos (quem precisa voltar) com botão de chamar no WhatsApp. */
@@ -40,11 +42,14 @@ export function TelaFinanceiro() {
   const [ini, fim] = intervalo(periodo);
   const r = useApi(() => financeiroResumo(ini, fim), [ini, fim]);
   const d = r.dados;
+  // cada aprovação monta um confete novo (a chave muda); ele some sozinho quando o papel cai
+  const [festa, setFesta] = useState(0);
 
   async function decidir(id: string, status: "aprovado" | "recusado" | "pendente") {
     const res = await decidirOrcamento(id, status);
     if (!res.sucesso) { toast.error("Não deu para atualizar o orçamento."); return; }
     toast(status === "aprovado" ? "Orçamento aprovado" : status === "recusado" ? "Orçamento recusado" : "Orçamento reaberto");
+    if (status === "aprovado") setFesta((n) => n + 1);
     void r.recarregar();
   }
   async function pedirConfirmacao(c: FinanceiroResumo["confirmacoes"][number]) {
@@ -83,12 +88,12 @@ export function TelaFinanceiro() {
       <Bloco primeiro titulo="Resumo" id="resumo">
         {!d ? <OssoLinha n={2} /> : (
           <div className="numeros">
-            <div className="numero"><b className="num">{reais(d.previsto)}</b><span>previsto no período</span></div>
-            <div className="numero"><b className="num">{reais(d.realizado)}</b><span>realizado (atendidos)</span></div>
-            <div className="numero"><b className="num">{d.consultas}</b><span>consultas</span></div>
-            <div className="numero"><b className="num">{taxa === null ? "—" : `${taxa}%`}</b><span>comparecimento · {d.faltas} {d.faltas === 1 ? "falta" : "faltas"}</span></div>
-            <div className="numero"><b className="num">{reais(d.orcamentos.valor_pendente)}</b><span>{d.orcamentos.pendentes} orçamento(s) pendente(s)</span></div>
-            <div className="numero"><b className="num">{reais(d.orcamentos.valor_aprovado)}</b><span>{d.orcamentos.aprovados} aprovado(s) · {d.orcamentos.recusados} recusado(s)</span></div>
+            <div className="numero"><b className="num"><NumeroRolante valor={reais(d.previsto)} /></b><span>previsto no período</span></div>
+            <div className="numero"><b className="num"><NumeroRolante valor={reais(d.realizado)} /></b><span>realizado (atendidos)</span></div>
+            <div className="numero"><b className="num"><NumeroRolante valor={String(d.consultas)} /></b><span>consultas</span></div>
+            <div className="numero"><b className="num"><NumeroRolante valor={taxa === null ? "—" : `${taxa}%`} /></b><span>comparecimento · {d.faltas} {d.faltas === 1 ? "falta" : "faltas"}</span></div>
+            <div className="numero"><b className="num"><NumeroRolante valor={reais(d.orcamentos.valor_pendente)} /></b><span>{d.orcamentos.pendentes} orçamento(s) pendente(s)</span></div>
+            <div className="numero"><b className="num"><NumeroRolante valor={reais(d.orcamentos.valor_aprovado)} /></b><span>{d.orcamentos.aprovados} aprovado(s) · {d.orcamentos.recusados} recusado(s)</span></div>
           </div>
         )}
         <p className="mt-2 text-[12px] text-tinta-3">Previsto = soma do valor das consultas marcadas. Realizado = consultas marcadas como atendidas. O valor sai da consulta ou do orçamento aprovado.</p>
@@ -144,6 +149,8 @@ export function TelaFinanceiro() {
           </Lista>
         )}
       </Bloco>
+
+      {festa > 0 && <Confete key={festa} origem={{ x: 0.5, y: 0.45 }} quantidade={110} />}
 
       <Bloco titulo="Faltas nos últimos 60 dias" id="faltas" lado={d?.faltas_lista.length || undefined}>
         {!d ? <OssoLinha n={2} /> : d.faltas_lista.length === 0 ? <Vazio titulo="Ninguém faltou." /> : (
