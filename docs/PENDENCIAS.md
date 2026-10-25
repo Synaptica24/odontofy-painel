@@ -42,3 +42,7 @@ Cada agente adiciona aqui o que precisa e não está no brief. Não inventar.
 - [x] (feito 2026-10-25: gravadas no `.env.local` e na Vercel, credencial validada) Informar `UAZ_BASE_URL` (ex.: https://api.uazapi.com ou o servidor da Synaptica) e `UAZ_ADMIN_TOKEN` por variável de ambiente (`.env.local` e Vercel). Sem eles, o bloco em Ajustes mostra "ainda não configurada" e nada falha.
 - [ ] Pareamento do WhatsApp: será feito pelo Dr. Mateus, no celular do consultório, em Ajustes → WhatsApp do consultório (decidido pelo Gabriel em 2026-10-25). Confirmar se o número é WhatsApp Business.
 - [ ] Aprovar a fase 2 (chat e cron de confirmações pela UAZ), descrita em `docs/BACKEND-UAZ.md`.
+
+## Endereço do painel (Claude, 2026-10-25)
+
+- [ ] No Supabase (Authentication → URL Configuration), incluir `https://odontofy-painel.vercel.app/**` em Redirect URLs. Sem isso, só o login por link de e-mail falha no endereço novo; login por senha funciona.

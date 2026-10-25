@@ -2,6 +2,11 @@ import { createServerClient } from '@supabase/ssr';
 import { NextResponse, type NextRequest } from 'next/server';
 
 export async function proxy(request: NextRequest) {
+  // No endereço do produto (odontofy-painel...), a raiz abre o painel; o site público do consultório
+  // continua na raiz do domínio antigo (dr-mateus-peixoto.vercel.app).
+  if (request.nextUrl.pathname === '/' && (request.headers.get('host') ?? '').startsWith('odontofy')) {
+    return NextResponse.redirect(new URL('/hoje', request.url));
+  }
   if (!process.env.NEXT_PUBLIC_SUPABASE_URL) return NextResponse.next();
   let resposta = NextResponse.next({ request });
   resposta.headers.set('Cache-Control', 'private, no-store');

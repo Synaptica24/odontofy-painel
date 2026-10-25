@@ -7,7 +7,8 @@ Atualizado em 2026-10-23. Decisões tomadas sem consulta estão em `DECISOES.md`
 | O quê | Onde |
 | --- | --- |
 | Site (público) | https://dr-mateus-peixoto.vercel.app |
-| Entrar no painel | https://dr-mateus-peixoto.vercel.app/entrar |
+| Painel (OdontoFy) | https://odontofy-painel.vercel.app |
+| Entrar no painel | https://odontofy-painel.vercel.app/entrar (o endereço antigo /entrar continua funcionando) |
 | Supabase (banco, usuários, arquivos) | https://supabase.com/dashboard/project/jvaiwbancxkrbomjevix |
 
 ## Como o Dr. acessa
