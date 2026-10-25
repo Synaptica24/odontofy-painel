@@ -45,3 +45,24 @@ Sem `.env.local`, `lib/api.ts` usa a fixture. Com Supabase configurado, vira rea
 ## Pendente no front
 - Envios da campanha mostram "Leva N" até o Codex entregar `paciente.nome` em `CampanhaEnvio` (pedido em `docs/PEDIDOS.md`).
 - Tela de entrar (magic link) é do Codex e ainda está sem estilo; as classes prontas estão descritas no pedido em `docs/PEDIDOS.md`.
+
+## Blocos interativos (2026-10-25)
+
+Todos em `components/fx/`, CSS em `styles/fx.css` e `styles/fx-blocos.css`, licenças em `THIRD_PARTY_NOTICES.md`.
+
+| Bloco | Onde está |
+|---|---|
+| `numero-rolante` | Hoje (Dia em números) e Financeiro (Resumo) |
+| `pilha-atencao` | Hoje (Pede atenção) |
+| `ilha-proximo` | Hoje (próximo paciente) |
+| `grupo-avatares` | Hoje (título da agenda), prévia do paciente, bilhete |
+| `fita-dias` | Agenda, visão Dia |
+| `tambor` / `SeletorHora` | Agenda, Nova consulta (hora) |
+| `deslizar-confirmar` | Agenda, detalhe da consulta (confirmar; cancelar com tom de alerta) |
+| `bilhete` | Agenda, folha "Consulta marcada" depois de criar |
+| `cartao-previa` | Pacientes, ao passar o mouse no nome |
+| `confete` | Pacientes (cadastro novo) e Financeiro (orçamento aprovado) |
+| `reacoes` | Conversa, ao lado do campo de resposta (manda o emoji como mensagem) |
+
+Não portados: `feedback-bar` (nota de 1 a 5, sem campo no backend) e `slide-confirm` fora da agenda.
+A landing (`OdontoFy-site`) usa `numero-rolante`, `pilha-atencao` e `grupo-avatares` no mock da hero.
