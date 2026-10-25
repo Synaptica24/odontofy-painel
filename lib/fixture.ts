@@ -66,7 +66,8 @@ const envios: CampanhaEnvio[] = Array.from({ length: 40 }, (_, i) => {
   // Em cada leva: 9 na fila, 6 enviadas, 3 respondidas, 1 erro e 1 bloqueada.
   const posicao = i % 20;
   const status = posicao < 9 ? 'fila' : posicao < 15 ? 'enviada' : posicao < 18 ? 'respondida' : posicao === 18 ? 'erro' : 'bloqueada';
-  return { id: novoId(), paciente_id: pacientes[status === 'bloqueada' ? 11 : i % 11].id,
+  const paciente = pacientes[status === 'bloqueada' ? 11 : i % 11];
+  return { id: novoId(), paciente_id: paciente.id, paciente_nome: paciente.nome,
     leva: Math.floor(i / 20) + 1, status,
     enviada_em: status === 'enviada' || status === 'respondida' ? relativo(-2880 + Math.floor(i / 20) * 1440) : null,
     respondida_em: status === 'respondida' ? relativo(-120) : null,

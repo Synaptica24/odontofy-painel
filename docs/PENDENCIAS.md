@@ -25,13 +25,14 @@ Cada agente adiciona aqui o que precisa e não está no brief. Não inventar.
 
 - [x] Direção visual escolhida na página do impeccable: Quadro branco com ímãs (branco, redondo, divertido). — 2026-09-17
 - [x] Nome: Dr. Mateus Peixoto (dentista e consultório). Logo: não informado; se existir, mandar o arquivo. — 2026-09-17
-- [ ] Onde cada toque da tela Hoje leva: "Assumir" abre a conversa ou assume direto da lista? (assumi: assume direto, com Desfazer, e abre a thread em seguida)
-- [ ] Prazo da pausa mostrado no toast de "Assumir" vem de `config.pausa_agente_minutos`; hoje mostra 30 min de fixture.
+- [x] (decidido por padrão, 2026-10-25) Onde cada toque da tela Hoje leva: "Assumir" abre a conversa ou assume direto da lista? (assumi: assume direto, com Desfazer, e abre a thread em seguida)
+- [x] Prazo da pausa mostrado no toast de "Assumir" vem de `config.pausa_agente_minutos` (tela Conversa lê a config; tela Hoje não cita minutos). — fechado 2026-10-25
 
 
-## Incisivo (landing do produto) e migração do prontuário (Claude, 2026-10-24)
+## OdontoFy (landing do produto) e migração do prontuário (Claude, 2026-10-24)
 
-- [ ] WhatsApp comercial para o botão "Pedir uma demonstração" da landing (`Incisivo-site/config/site.ts`); enquanto vazio, o botão abre e-mail para gabrieltomaz442@gmail.com.
-- [ ] Nome do produto: **Incisivo** (trocou "Marfim" a pedido do Gabriel em 2026-10-24, pensando em vender para mais dentistas). incisivo.com.br e incisivo.app estavam sem DNS na checagem (provável livres): registrar antes que alguém pegue.
+- [ ] WhatsApp comercial para o botão "Pedir uma demonstração" da landing (`OdontoFy-site/config/site.ts`); enquanto vazio, o botão abre e-mail para gabrieltomaz442@gmail.com.
+- [x] Nome do produto: **OdontoFy** (definido pelo Gabriel em 2026-10-25; substitui Incisivo e Marfim). Landing renomeada e publicada em https://odontofy.vercel.app (pasta `OdontoFy-site`, projeto Vercel `odontofy`; o projeto `incisivo` continua existindo e pode ser apagado no painel da Vercel).
+- [ ] Domínio: **odontofy.com.br já está registrado** (desde 2019, pessoa física, vence 2027-05) e odontofy.com responde a um site. Existe risco de marca homônima; decidir se mantém o nome ou negocia o domínio. Grafia adotada: "OdontoFy" (Fy em azul no logo).
 - [ ] Consultas passadas do Codental marcadas como "Agendada/Confirmada" entraram como "concluída" (o Codental não registra presença em tudo); faltas e cancelamentos vieram como estão. Confirmar se a regra serve.
 - [ ] Receitas e atestados do Codental entraram só como registro (tipo + resumo), sem PDF; o PDF continua no Codental.

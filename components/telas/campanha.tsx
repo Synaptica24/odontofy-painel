@@ -80,7 +80,7 @@ export function TelaCampanha() {
                 <Linha
                   marca={e.status === "respondida" ? "ia" : e.status === "erro" ? "falta" : e.status === "enviada" ? "feito" : "nada"}
                   href={`/pacientes/${e.paciente_id}`}
-                  titulo={<span className="num">Leva {e.leva}</span>}
+                  titulo={e.paciente_nome ? <span>{e.paciente_nome} <span className="a-linha__meta num">· leva {e.leva}</span></span> : <span className="num">Leva {e.leva}</span>}
                   sub={`${ROTULO[e.status] ?? e.status}${e.erro ? ` · ${e.erro}` : ""}`}
                   lado={<span className="a-linha__meta num">{e.enviada_em ? quando(e.enviada_em) : ""}</span>}
                 />

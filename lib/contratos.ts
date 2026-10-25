@@ -138,6 +138,8 @@ export interface ResumoDoDia {
 export interface CampanhaEnvio {
   id: Id; paciente_id: Id; leva: number; enviada_em: DataHora | null;
   status: StatusCampanhaEnvio; respondida_em: DataHora | null; erro: string | null;
+  /** Nome do paciente, devolvido por painel_leitura('campanha') e pela fixture. */
+  paciente_nome?: string;
 }
 export interface ItemConhecimento {
   id: Id; pergunta: string; resposta: string; palavras_chave: string[]; ativo: boolean;
