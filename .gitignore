@@ -52,3 +52,6 @@ tsconfig.tsbuildinfo
 
 # exports com dados reais de pacientes (LGPD) — nunca versionar
 /data/
+
+# estado local do CLI do Supabase
+supabase/.temp/
