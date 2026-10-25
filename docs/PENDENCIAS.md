@@ -36,3 +36,9 @@ Cada agente adiciona aqui o que precisa e não está no brief. Não inventar.
 - [ ] Domínio: **odontofy.com.br já está registrado** (desde 2019, pessoa física, vence 2027-05) e odontofy.com responde a um site. Existe risco de marca homônima; decidir se mantém o nome ou negocia o domínio. Grafia adotada: "OdontoFy" (Fy em azul no logo).
 - [ ] Consultas passadas do Codental marcadas como "Agendada/Confirmada" entraram como "concluída" (o Codental não registra presença em tudo); faltas e cancelamentos vieram como estão. Confirmar se a regra serve.
 - [ ] Receitas e atestados do Codental entraram só como registro (tipo + resumo), sem PDF; o PDF continua no Codental.
+
+## WhatsApp via UAZ-API (Claude, 2026-10-25)
+
+- [ ] Informar `UAZ_BASE_URL` (ex.: https://api.uazapi.com ou o servidor da Synaptica) e `UAZ_ADMIN_TOKEN` por variável de ambiente (`.env.local` e Vercel). Sem eles, o bloco em Ajustes mostra "ainda não configurada" e nada falha.
+- [ ] Confirmar que o número do consultório é WhatsApp Business e quem fará o pareamento (QR ou código).
+- [ ] Aprovar a fase 2 (chat e cron de confirmações pela UAZ), descrita em `docs/BACKEND-UAZ.md`.

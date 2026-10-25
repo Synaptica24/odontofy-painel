@@ -6,6 +6,12 @@ export async function proxy(request: NextRequest) {
   let resposta = NextResponse.next({ request });
   resposta.headers.set('Cache-Control', 'private, no-store');
   const caminho = request.nextUrl.pathname;
+  // Cron da Vercel: não tem sessão; passa só com o segredo certo no Authorization (a rota confere de novo).
+  if (caminho.startsWith('/api/cron/')) {
+    const segredo = process.env.CRON_SECRET;
+    if (segredo && request.headers.get('authorization') === `Bearer ${segredo}`) return resposta;
+    return NextResponse.json({ sucesso: false, dados: null, erro: { codigo: 'nao_autorizado', mensagem: 'Não autorizado.' } }, { status: 401 });
+  }
   // Público: site institucional na raiz, SEO, assinatura de contrato pelo paciente e autenticação.
   const publico = caminho === '/' || caminho === '/entrar' || caminho === '/sitemap.xml' || caminho === '/robots.txt'
     || caminho.startsWith('/opengraph-image') || caminho.startsWith('/twitter-image') || caminho.startsWith('/site/')

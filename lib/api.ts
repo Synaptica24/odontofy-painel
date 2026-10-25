@@ -7,7 +7,7 @@ import type {
   Consultorio, Contrato, ContratoModelo, Convenio, Conversa, DadosPaciente, DataCivil, DataHora, DetalheConversa, DetalhePaciente, EntradaConhecimento,
   Evolucao, FiltroAgenda, FiltroAgendaCompleto, FiltroConversas, FinanceiroResumo, Id, ItemConhecimento, ItemOdontograma, Mensagem, NovoAgendamento,
   Orcamento, OrcamentoItem, Paciente, Profissional, Prontuario, ResultadoAgenda,
-  ResultadoApi, ResultadoConsumoDoMes, ResultadoStatusCampanha, ResumoConversa, ResumoDoDia, Retorno, StatusOrcamento, StatusRetorno,
+  ResultadoApi, ResultadoConsumoDoMes, ResultadoStatusCampanha, ResumoConversa, ResumoDoDia, Retorno, StatusOrcamento, StatusRetorno, WhatsappConexao,
 } from './contratos';
 
 export const FIXTURE_ATIVA = !process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -145,6 +145,14 @@ function inscrever<T>(tabela: 'conversas' | 'mensagens', ler: () => Promise<Resu
    Sem Supabase (fixture) estas funções devolvem "indisponível": a demonstração real vive no consultório "Demonstração". */
 const semFixture = <T>(): Promise<ResultadoApi<T>> => Promise.resolve({ sucesso: false, dados: null, erro: { codigo: 'indisponivel', mensagem: 'Disponível só com o Supabase configurado.' } });
 const clinica = <T>(operacao: string, argumentos: Record<string, unknown> = {}) => (FIXTURE_ATIVA ? semFixture<T>() : real<T>(operacao, argumentos));
+
+/* ---------- WhatsApp do consultório (UAZ-API) ----------
+   O navegador só recebe WhatsappConexao (status, número mascarado, QR/código temporários). Tokens ficam no servidor. */
+export const whatsappStatus = () => clinica<WhatsappConexao>('whatsappStatus');
+export const whatsappIniciar = (metodo: 'qr' | 'pair', telefone?: string) => clinica<WhatsappConexao>('whatsappIniciar', { metodo, telefone });
+export const whatsappAtualizarStatus = () => clinica<WhatsappConexao>('whatsappAtualizarStatus');
+export const whatsappDesconectar = () => clinica<WhatsappConexao>('whatsappDesconectar');
+export const whatsappEnviarTeste = () => clinica<WhatsappConexao>('whatsappEnviarTeste');
 
 export const meusConsultorios = () => clinica<Consultorio[]>('meusConsultorios');
 export const escolherConsultorio = (id: Id) => clinica<Id>('escolherConsultorio', { id });

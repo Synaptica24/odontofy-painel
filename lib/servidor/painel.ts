@@ -111,6 +111,11 @@ export async function executarOperacao(operacao: string, entrada: unknown): Prom
         dados = data; break;
       }
       default: {
+        // WhatsApp do consultório (UAZ-API) vive em whatsapp.ts; o token da instância nunca passa por aqui.
+        if (operacao.startsWith('whatsapp')) {
+          const { executarWhatsapp } = await import('./whatsapp');
+          return executarWhatsapp(operacao, entrada);
+        }
         // Operações clínicas (prontuário, agenda do painel, contratos, financeiro) vivem em clinica.ts.
         const { executarClinica } = await import('./clinica');
         return executarClinica(operacao, entrada);

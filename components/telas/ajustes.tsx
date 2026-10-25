@@ -7,6 +7,7 @@ import type { Config, DiaSemana, FaixaHorario } from "@/lib/contratos";
 import { useApi } from "@/components/dados/use-api";
 import { Bloco, Botao, Cabecalho, Campo, Entrada, Erro, Interruptor, Pagina } from "@/components/ui/primitivos";
 import { AjustesClinica } from "./ajustes-clinica";
+import { AjustesWhatsapp } from "./ajustes-whatsapp";
 
 const DIAS: { chave: DiaSemana; rotulo: string }[] = [
   { chave: "segunda", rotulo: "Segunda" },
@@ -82,7 +83,8 @@ export function TelaAjustes() {
         </div>
       ) : (
         <>
-          <Bloco titulo="A IA" id="ia" primeiro>
+          <AjustesWhatsapp />
+          <Bloco titulo="A IA" id="ia">
             <div className="a-ajuste">
               <div>
                 <p className="a-ajuste__rotulo">Responder no WhatsApp</p>

@@ -150,6 +150,25 @@ export interface RegraEscalonamento { id: Id; gatilho: string; acao: string; ati
 export interface Evento { id: Id; tipo: string; payload: Json; criado_em: DataHora }
 export type DiaSemana = 'segunda' | 'terca' | 'quarta' | 'quinta' | 'sexta' | 'sabado' | 'domingo';
 export interface FaixaHorario { inicio: string; fim: string }
+/** WhatsApp do consultório (UAZ-API). Tokens nunca chegam ao navegador. */
+export type StatusWhatsapp = 'disconnected' | 'connecting' | 'connected' | 'hibernated';
+export interface WhatsappConexao {
+  status: StatusWhatsapp;
+  /** Ex.: "+55 11 *****-1234"; null enquanto não pareado. */
+  numero_mascarado: string | null;
+  metodo: 'qr' | 'pair' | null;
+  /** Só enquanto connecting + qr (data URL ou base64 puro, conforme a UAZ devolver). */
+  qrcode_base64: string | null;
+  /** Só enquanto connecting + pair. */
+  paircode: string | null;
+  /** Quando o pareamento começou; a tela expira QR em ~2 min e código em ~5 min. */
+  iniciado_em: DataHora | null;
+  atualizado_em: DataHora | null;
+  /** Última falha, em linguagem de gente; vazio quando tudo bem. */
+  erro: string;
+  /** false quando UAZ_BASE_URL/UAZ_ADMIN_TOKEN não estão no servidor: a tela explica em vez de falhar. */
+  configurado: boolean;
+}
 export interface Config {
   fuso_horario: 'America/Sao_Paulo';
   horarios_atendimento: Record<DiaSemana, FaixaHorario[]>;

@@ -40,11 +40,8 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
-# mantém o exemplo de variáveis versionado
+# mantém o exemplo de variáveis versionado (as linhas .env*/.vercel repetidas abaixo anulavam a exceção)
 !.env.example
-
-.vercel
-.env*
 
 # estado de ferramentas de design e cache de tipos
 .impeccable/

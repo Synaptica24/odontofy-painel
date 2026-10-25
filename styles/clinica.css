@@ -1133,3 +1133,38 @@
   font-size: var(--t--1);
   color: var(--tinta-3);
 }
+
+/* ── Ajustes → WhatsApp do consultório ── */
+.wa-conectando {
+  display: grid;
+  gap: var(--e-3);
+  justify-items: start;
+}
+@media (min-width: 640px) {
+  .wa-conectando {
+    grid-template-columns: auto 1fr;
+    align-items: center;
+  }
+  .wa-conectando > .a-botao {
+    grid-column: 1 / -1;
+  }
+}
+.wa-qr {
+  display: block;
+  width: 224px;
+  height: 224px;
+  border-radius: var(--raio);
+  background: #fff;
+  box-shadow: 0 0 0 1px var(--pauta);
+  image-rendering: pixelated;
+}
+.wa-paircode {
+  font-size: 2rem;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  padding: var(--e-3) var(--e-4);
+  border-radius: var(--raio);
+  background: var(--fundo-2);
+  box-shadow: 0 0 0 1px var(--pauta);
+  user-select: all;
+}
