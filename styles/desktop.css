@@ -335,12 +335,21 @@
     margin-right: var(--e-2);
   }
   .topo__nome {
+    display: flex;
+    align-items: center;
+    gap: 10px;
     font-size: var(--t-1);
     font-weight: 650;
     color: var(--tinta);
     letter-spacing: -0.02em;
     line-height: 1.1;
     white-space: nowrap;
+  }
+  /* mascote do OdontoFy: quadrado creme da própria imagem, contorno na cor das linhas */
+  .topo__mascote {
+    flex-shrink: 0;
+    border-radius: 24%;
+    box-shadow: 0 0 0 1px var(--pauta);
   }
   .topo__nome small {
     display: block;

@@ -13,6 +13,12 @@
   max-width: 26rem;
   padding: 1.5rem;
 }
+.entrar__mascote {
+  display: block;
+  margin-bottom: 0.875rem;
+  border-radius: 24%;
+  box-shadow: 0 0 0 1px var(--pauta);
+}
 .entrar__marca {
   color: var(--marcador);
   font-weight: 700;

@@ -1,3 +1,4 @@
+import Image from 'next/image';
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { enviarMagicLink, entrarComSenha } from '@/lib/auth';
@@ -23,6 +24,7 @@ export default async function Entrar({ searchParams }: { searchParams: Promise<{
   return (
     <main data-mundo="a" className="a-pagina entrar">
       <section className="a-bloco a-bloco--primeiro entrar__cartao">
+        <Image src="/odontofy-mascote.png" alt="" width={56} height={56} priority className="entrar__mascote" />
         <p className="entrar__marca">Dr. Mateus Peixoto</p>
         <h1 className="entrar__titulo">Entrar no consultório</h1>
         <p className="entrar__sub">Agenda, pacientes, prontuário e financeiro em um lugar só.</p>

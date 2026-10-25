@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
@@ -95,8 +96,11 @@ export function BarraSuperior() {
     <header className="topo">
       <div className="topo__marca">
         <Link href="/hoje" className="topo__nome">
-          Dr. Mateus Peixoto
-          <small>{ativo ? ativo.nome : "Painel do consultório"}</small>
+          <Image src="/odontofy-mascote.png" alt="" width={36} height={36} priority className="topo__mascote" />
+          <span>
+            Dr. Mateus Peixoto
+            <small>{ativo ? ativo.nome : "Painel do consultório"}</small>
+          </span>
         </Link>
       </div>
 
