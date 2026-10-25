@@ -90,7 +90,23 @@ export function TelaAjustes() {
                 <p className="a-ajuste__rotulo">Responder no WhatsApp</p>
                 <p className="a-ajuste__dica">{cfg.agente_ativo ? "Ela responde por você no WhatsApp." : "Ninguém responde por você."}</p>
               </div>
-              <Interruptor ligado={cfg.agente_ativo} aoMudar={(v) => mudar({ agente_ativo: v })} rotulo="IA responde no WhatsApp" />
+              <Interruptor
+                ligado={cfg.agente_ativo}
+                aoMudar={(v) => {
+                  // mesmas exigências de privado.validar_config: sem elas o banco recusa e o toast genérico não explica nada
+                  const falta = [
+                    cfg.canal_urgencia.tipo === "nao_configurado" || !cfg.canal_urgencia.destino.trim() ? "o canal de urgência (bloco Urgência)" : null,
+                    !(cfg.teto_gasto_ia_brl > 0) ? "o teto de gasto de IA (bloco Gasto de IA)" : null,
+                    !cfg.consumo_fonte.trim() || !cfg.cambio_fonte.trim() ? "a fonte de consumo e de câmbio da IA (configurada pelo suporte)" : null,
+                  ].filter(Boolean);
+                  if (v && falta.length) {
+                    toast("Ainda não dá para ligar a IA", { description: `Falta definir ${falta.join(", ")}.` });
+                    return;
+                  }
+                  mudar({ agente_ativo: v });
+                }}
+                rotulo="IA responde no WhatsApp"
+              />
             </div>
             <div className="a-ajuste">
               <div>
@@ -183,7 +199,18 @@ export function TelaAjustes() {
                 <p className="a-ajuste__rotulo">Pedir confirmação antes da consulta</p>
                 <p className="a-ajuste__dica">A IA manda a mensagem e registra a resposta.</p>
               </div>
-              <Interruptor ligado={cfg.confirmacao_ativa} aoMudar={(v) => mudar({ confirmacao_ativa: v })} rotulo="Confirmação automática" />
+              <Interruptor
+                ligado={cfg.confirmacao_ativa}
+                // o banco só aceita ligar com antecedência > 0 e horário preenchido; ligar já traz valores de partida
+                aoMudar={(v) =>
+                  mudar({
+                    confirmacao_ativa: v,
+                    ...(v && !(cfg.confirmacao_antecedencia_horas > 0) ? { confirmacao_antecedencia_horas: 24 } : {}),
+                    ...(v && !cfg.confirmacao_horario ? { confirmacao_horario: "09:00" } : {}),
+                  })
+                }
+                rotulo="Confirmação automática"
+              />
             </div>
             {cfg.confirmacao_ativa && (
               <div className="grid grid-cols-2 gap-2">
