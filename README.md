@@ -21,3 +21,7 @@ Edite os ajustes pelo painel (`salvarConfig`) ou RPC `salvar_config(p_alteracoes
 Execute `npx tsc --noEmit` e `npx eslint lib app/api proxy.ts`. Testes de banco e protocolo: [BACKEND-FASE2.md](docs/BACKEND-FASE2.md). Credenciais, parâmetros operacionais e homologação externa: [PENDENCIAS.md](docs/PENDENCIAS.md).
 
 Para deploy na Vercel, recomendo instalar a CLI com `npm i -g vercel`, habilitando `vercel env pull`, `vercel deploy` e `vercel logs`. Nenhuma instalação ou publicação foi feita nesta entrega.
+
+## Deploy
+
+A Vercel publica sozinha a cada push na branch `main` do GitHub (projeto `dr-mateus-peixoto`). Deploy manual: `npx vercel deploy --prod`.
