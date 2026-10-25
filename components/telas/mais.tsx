@@ -1,8 +1,11 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { toast } from "sonner";
 import { Coins, FileSignature, Megaphone, Settings, Sparkles, Wallet } from "lucide-react";
-import { Abas, Bloco, Cabecalho, Item, Linha, Lista, Pagina } from "@/components/ui/primitivos";
+import { trocarSenha } from "@/lib/auth";
+import { clienteBrowser } from "@/lib/supabase/browser";
+import { Abas, Bloco, Botao, Cabecalho, Campo, Entrada, Item, Linha, Lista, Pagina } from "@/components/ui/primitivos";
 
 const ITENS = [
   { href: "/financeiro", titulo: "Financeiro", sub: "Faturamento, orçamentos, confirmações, faltas e retornos", Icone: Wallet },
@@ -66,6 +69,58 @@ export function TelaMais() {
         />
         <p className="mt-2 text-[13px] text-tinta-3">Fica guardado neste aparelho.</p>
       </Bloco>
+      <Conta />
     </Pagina>
+  );
+}
+
+/** E-mail da conta logada e troca de senha (server action trocarSenha, com a sessão atual). */
+function Conta() {
+  const [email, setEmail] = useState<string | null>(null);
+  const [nova, setNova] = useState("");
+  const [repete, setRepete] = useState("");
+  const [salvando, setSalvando] = useState(false);
+  useEffect(() => {
+    try {
+      const c = clienteBrowser();
+      void c?.auth.getSession().then(({ data }) => setEmail(data.session?.user.email ?? null));
+    } catch {
+      /* modo demonstração sem Supabase */
+    }
+  }, []);
+  const curta = nova.length > 0 && nova.length < 8;
+  const diferente = repete.length > 0 && repete !== nova;
+  const pode = nova.length >= 8 && repete === nova && !salvando;
+
+  async function salvar(e: React.FormEvent) {
+    e.preventDefault();
+    if (!pode) return;
+    setSalvando(true);
+    const res = await trocarSenha(nova);
+    setSalvando(false);
+    if (!res.sucesso) {
+      toast.error("A senha não mudou.", { description: res.erro.mensagem });
+      return;
+    }
+    setNova("");
+    setRepete("");
+    toast("Senha trocada", { description: "Use a nova senha no próximo acesso." });
+  }
+
+  return (
+    <Bloco titulo="Sua conta" id="conta">
+      {email && <p className="mb-3 text-[14px]">Entrando como <b>{email}</b></p>}
+      <form onSubmit={salvar} className="grid gap-2 sm:max-w-sm">
+        <Campo rotulo="Nova senha" dica={curta ? "Pelo menos 8 caracteres." : undefined}>
+          <Entrada type="password" autoComplete="new-password" value={nova} onChange={(e) => setNova(e.target.value)} minLength={8} maxLength={200} />
+        </Campo>
+        <Campo rotulo="Repita a nova senha" dica={diferente ? "As duas senhas não batem." : undefined}>
+          <Entrada type="password" autoComplete="new-password" value={repete} onChange={(e) => setRepete(e.target.value)} minLength={8} maxLength={200} />
+        </Campo>
+        <div>
+          <Botao type="submit" cheio disabled={!pode}>{salvando ? "Trocando…" : "Trocar senha"}</Botao>
+        </div>
+      </form>
+    </Bloco>
   );
 }

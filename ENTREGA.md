@@ -12,7 +12,7 @@ Atualizado em 2026-10-23. Decisões tomadas sem consulta estão em `DECISOES.md`
 
 ## Como o Dr. acessa
 1. Abre `/entrar` no celular ou no computador.
-2. E-mail e senha provisórios: `dr.mateus@consultorio.local`; a senha está em `DR_SENHA_INICIAL` no `.env.local` (nunca neste arquivo nem no repositório).
+2. Conta do Dr.: e-mail `drmateuspmaia@gmail.com` (trocado em 2026-10-25, mesma conta, mesmo consultório). A senha é definida pelo Gabriel em Mais → Sua conta; a provisória está em `DR_SENHA_INICIAL` no `.env.local` até ser trocada.
 3. **Antes de entregar**: troque o e-mail para o dele em `AUTH_EMAIL_PERMITIDO` (no `.env.local` e na Vercel) e rode `node supabase/scripts/criar-usuario.mjs` com `DR_EMAIL` e `DR_SENHA_INICIAL` definidos. Depois apague a senha provisória do `.env.local`.
 4. Ele começa no consultório **real**, vazio. A demonstração (dados fictícios) fica no menu **Conta → Demonstração**; uma faixa amarela avisa quando ela está ativa.
 

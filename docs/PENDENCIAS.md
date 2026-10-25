@@ -6,7 +6,7 @@ Cada agente adiciona aqui o que precisa e não está no brief. Não inventar.
 
 - [x] Aprovar `BACKEND-MODELO.md` antes de qualquer migração ou integração (Fase 2), incluindo tabelas auxiliares e campos adicionais. Aprovado explicitamente pelo dono em 2026-09-17.
 - [ ] Informar URL/projeto Supabase, região e chaves pelos ambientes seguros; nunca colar service role neste documento. Confirmar acesso administrativo para provisionar a conta e configurar Auth.
-- [ ] Informar e-mail da conta única, URL definitiva do painel e URLs de callback permitidas (desenvolvimento e produção); definir remetente/entrega de magic link.
+- [x] (e-mail do Dr. definido em 2026-10-25: conta única passou a usar o endereço dele) Informar e-mail da conta única, URL definitiva do painel e URLs de callback permitidas (desenvolvimento e produção); definir remetente/entrega de magic link.
 - [ ] Informar URL do webhook n8n de envio e mecanismo de autenticação; fornecer segredo apenas por variável de ambiente. Definir payload, ACK, timeout, chave de correlação/idempotência, retries e associação ao `wa_message_id` sem duplicar mensagens.
 - [ ] Definir canal de urgência (WhatsApp/e-mail), destino real, atendimento fora do expediente e fallback quando a notificação falhar.
 - [ ] Informar horários reais por dia, intervalos, feriados/exceções e catálogo de tipos com duração em minutos. Fixture `ATENDIMENTO_TESTE`, 10h–10h30, é somente cenário visual.
