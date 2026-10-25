@@ -6,6 +6,7 @@ import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import {
   Bell, CalendarDays, Coins, FileSignature, LogOut, Megaphone, MessageSquare, Search, Settings, Sparkles, Sun, Users, Wallet, Building2, FlaskConical, Check,
+  KeyRound,
 } from "lucide-react";
 import { escolherConsultorio, inscreverEmConversas, listarPacientes, meusConsultorios, resumoDoDia, FIXTURE_ATIVA } from "@/lib/api";
 import type { Consultorio, Paciente } from "@/lib/contratos";
@@ -27,6 +28,8 @@ const MENU = [
   { rotulo: "Consumo de IA", href: "/consumo", Icone: Coins },
   { rotulo: "Modelos de contrato", href: "/ajustes/contratos", Icone: FileSignature },
   { rotulo: "Ajustes", href: "/ajustes", Icone: Settings },
+  // no desktop a barra de baixo (com "Mais") some; este é o caminho para trocar a senha
+  { rotulo: "Senha e conta", href: "/mais#conta", Icone: KeyRound },
 ];
 
 export function BarraSuperior() {
