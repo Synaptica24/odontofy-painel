@@ -1,6 +1,6 @@
 /** Contrato único do front: fixture sem URL, operações autenticadas com URL. */
 import * as fixture from './fixture';
-import { operacaoPainel } from './painel-actions';
+import { operacaoPainel, operacaoPainelLote } from './painel-actions';
 import { clienteBrowser } from './supabase/browser';
 import type {
   Agendamento, Anamnese, Anexo, Bloqueio, CallbackConversas, CallbackMensagens, CancelarInscricao, Config,
@@ -12,9 +12,37 @@ import type {
 
 export const FIXTURE_ATIVA = !process.env.NEXT_PUBLIC_SUPABASE_URL;
 const indisponivel = <T>(): ResultadoApi<T> => ({ sucesso: false, dados: null, erro: { codigo: 'indisponivel', mensagem: 'Não foi possível atualizar. Tente novamente.' } });
+/* No navegador, server actions rodam uma de cada vez. Uma tela que pede 6 coisas esperaria 6 viagens em fila.
+   Aqui as chamadas feitas no mesmo instante entram numa fila curta e saem juntas numa única action (lote),
+   que o servidor executa em paralelo. No servidor (Server Components) a chamada vai direto. */
+type Pendente = { operacao: string; argumentos: Record<string, unknown>; resolver: (r: ResultadoApi<unknown>) => void };
+let fila: Pendente[] = [];
+let agendado = false;
+function despachar() {
+  const lote = fila;
+  fila = [];
+  agendado = false;
+  if (lote.length === 1) {
+    const [p] = lote;
+    operacaoPainel(p.operacao, p.argumentos).then((r) => p.resolver(r as ResultadoApi<unknown>), () => p.resolver(indisponivel()));
+    return;
+  }
+  for (let i = 0; i < lote.length; i += 25) {
+    const parte = lote.slice(i, i + 25);
+    operacaoPainelLote(parte.map((p) => ({ operacao: p.operacao, argumentos: p.argumentos })))
+      .then((rs) => parte.forEach((p, j) => p.resolver((rs[j] as ResultadoApi<unknown>) ?? indisponivel())))
+      .catch(() => parte.forEach((p) => p.resolver(indisponivel())));
+  }
+}
 async function real<T>(operacao: string, argumentos: Record<string, unknown> = {}): Promise<ResultadoApi<T>> {
-  try { return await operacaoPainel(operacao, argumentos) as ResultadoApi<T>; }
-  catch { return indisponivel(); }
+  if (typeof window === 'undefined') {
+    try { return await operacaoPainel(operacao, argumentos) as ResultadoApi<T>; }
+    catch { return indisponivel(); }
+  }
+  return new Promise<ResultadoApi<T>>((resolver) => {
+    fila.push({ operacao, argumentos, resolver: resolver as (r: ResultadoApi<unknown>) => void });
+    if (!agendado) { agendado = true; window.setTimeout(despachar, 0); }
+  });
 }
 export async function listarConversas(filtro: FiltroConversas = {}): Promise<ResultadoApi<ResumoConversa[]>> {
   return FIXTURE_ATIVA ? fixture.listarConversas(filtro) : real('listarConversas', { ...filtro });

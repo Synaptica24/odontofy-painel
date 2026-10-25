@@ -32,9 +32,12 @@ export async function proxy(request: NextRequest) {
       },
     });
     try {
-      const { data: { user }, error } = await cliente.auth.getUser();
+      // getClaims valida o JWT localmente (chaves assimétricas, JWKS em cache) e renova a sessão se expirou;
+      // getUser fazia uma ida ao Auth em toda requisição.
+      const { data, error } = await cliente.auth.getClaims();
+      const user = data?.claims?.sub ? { email: typeof data.claims.email === 'string' ? data.claims.email : '' } : null;
       const permitido = process.env.AUTH_EMAIL_PERMITIDO?.trim().toLowerCase();
-      if (!error && user && (!permitido || user.email?.toLowerCase() === permitido)) {
+      if (!error && user && (!permitido || user.email.toLowerCase() === permitido)) {
         const conta = await cliente.rpc('conta_permitida');
         autorizado = !conta.error && conta.data === true;
       }

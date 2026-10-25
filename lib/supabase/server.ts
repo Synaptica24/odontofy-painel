@@ -19,14 +19,22 @@ export async function clienteServer() {
   });
 }
 
+/** Valida o JWT da sessão localmente (chaves assimétricas ES256; o JWKS fica em cache) em vez de perguntar ao
+ *  Auth a cada chamada. Renova o token sozinho quando expira. Devolve o id e o e-mail do usuário. */
+export async function usuarioDaSessao(cliente: Awaited<ReturnType<typeof clienteServer>>) {
+  const { data, error } = await cliente.auth.getClaims();
+  if (error || !data?.claims?.sub) return null;
+  return { id: String(data.claims.sub), email: typeof data.claims.email === 'string' ? data.claims.email : '' };
+}
+
 /** Sessão válida = usuário logado que é membro de algum consultório (RPC conta_permitida).
  *  AUTH_EMAIL_PERMITIDO, quando definido, restringe ainda mais a um único e-mail. */
 export async function sessaoAutorizada() {
   const cliente = await clienteServer();
-  const { data: { user }, error } = await cliente.auth.getUser();
-  if (error || !user) throw { code: '42501' };
+  const user = await usuarioDaSessao(cliente);
+  if (!user) throw { code: '42501' };
   const permitido = process.env.AUTH_EMAIL_PERMITIDO?.trim().toLowerCase();
-  if (permitido && user.email?.toLowerCase() !== permitido) throw { code: '42501' };
+  if (permitido && user.email.toLowerCase() !== permitido) throw { code: '42501' };
   const { data, error: erroConta } = await cliente.rpc('conta_permitida');
   if (erroConta || data !== true) throw { code: '42501' };
   return cliente;

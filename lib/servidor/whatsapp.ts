@@ -1,5 +1,5 @@
 import 'server-only';
-import { clienteAdmin, sessaoAutorizada } from '../supabase/server';
+import { clienteAdmin, sessaoAutorizada, usuarioDaSessao } from '../supabase/server';
 import { erroSeguro } from './painel';
 import type { Json, ResultadoApi, StatusWhatsapp, WhatsappConexao } from '../contratos';
 
@@ -92,7 +92,7 @@ async function registrarEvento(admin: ReturnType<typeof clienteAdmin>, tipo: str
 /** Sessão válida + consultório atual + cliente admin para a tabela (único lugar que vê o token). */
 async function contexto() {
   const sessao = await sessaoAutorizada();
-  const { data: { user } } = await sessao.auth.getUser();
+  const user = await usuarioDaSessao(sessao);
   const { data: consultorioId, error } = await sessao.rpc('consultorio_atual');
   if (error || !consultorioId) throw { code: '42501' };
   const admin = clienteAdmin();
